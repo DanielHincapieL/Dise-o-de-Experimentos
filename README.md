@@ -1,13 +1,6 @@
----
-title: "Optimización de la transferencia de bases de datos: Un análisis factorial del tipo de archivo, dispositivo de almacenamiento y uso de RAM"
-author: "David Villegas - Angela Galvis - Daniel Felipe Hincapié"
-date: "`r Sys.Date()`"
-lang: es
-theme: lux
-format: html
-editor: visual
-bibliography: references.bib
----
+Optimización de la transferencia de bases de datos: Un análisis factorial del tipo de archivo, dispositivo de almacenamiento y uso de RAM
+David Villegas - Angela Galvis - Daniel Felipe Hincapié
+
 
 <div style="text-align: justify;">
 
