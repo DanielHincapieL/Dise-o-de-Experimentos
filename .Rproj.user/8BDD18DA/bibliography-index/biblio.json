@@ -1,0 +1,347 @@
+{
+    "sources": [
+        {
+            "URL": "https://ggplot2.tidyverse.org",
+            "author": [
+                {
+                    "family": "Wickham",
+                    "given": "Hadley"
+                }
+            ],
+            "id": "ggplot2",
+            "issued": {
+                "date-parts": [
+                    [
+                        2016
+                    ]
+                ]
+            },
+            "title": "ggplot2: Elegant graphics for data analysis",
+            "title-short": "ggplot2",
+            "type": "article-journal"
+        },
+        {
+            "URL": "https://CRAN.R-project.org/doc/Rnews/",
+            "author": [
+                {
+                    "family": "Zeileis",
+                    "given": "Achim"
+                },
+                {
+                    "family": "Hothorn",
+                    "given": "Torsten"
+                }
+            ],
+            "id": "lmtest",
+            "issued": {
+                "date-parts": [
+                    [
+                        2002
+                    ]
+                ]
+            },
+            "title": "Diagnostic checking in regression relationships",
+            "type": "article-journal",
+            "volume": "2"
+        },
+        {
+            "URL": "https://CRAN.R-project.org/package=gplots",
+            "author": [
+                {
+                    "family": "Warnes",
+                    "given": "Gregory R."
+                },
+                {
+                    "family": "Bolker",
+                    "given": "Ben"
+                },
+                {
+                    "family": "Bonebakker",
+                    "given": "Lodewijk"
+                },
+                {
+                    "family": "Gentleman",
+                    "given": "Robert"
+                },
+                {
+                    "family": "Huber",
+                    "given": "Wolfgang"
+                },
+                {
+                    "family": "Liaw",
+                    "given": "Andy"
+                },
+                {
+                    "family": "Lumley",
+                    "given": "Thomas"
+                },
+                {
+                    "family": "Maechler",
+                    "given": "Martin"
+                },
+                {
+                    "family": "Magnusson",
+                    "given": "Arni"
+                },
+                {
+                    "family": "Moeller",
+                    "given": "Steffen"
+                },
+                {
+                    "family": "Schwartz",
+                    "given": "Marc"
+                },
+                {
+                    "family": "Venables",
+                    "given": "Bill"
+                },
+                {
+                    "family": "Galili",
+                    "given": "Tal"
+                }
+            ],
+            "id": "gplots",
+            "issued": {
+                "date-parts": [
+                    [
+                        2024
+                    ]
+                ]
+            },
+            "title": "Gplots: Various r programming tools for plotting data",
+            "title-short": "Gplots",
+            "type": "article-journal"
+        },
+        {
+            "URL": "https://www.R-project.org/",
+            "author": [
+                {
+                    "given": "R Core Team"
+                }
+            ],
+            "id": "graphics",
+            "issued": {
+                "date-parts": [
+                    [
+                        2024
+                    ]
+                ]
+            },
+            "title": "R: A language and environment for statistical computing",
+            "title-short": "R",
+            "type": "article-journal"
+        },
+        {
+            "URL": "https://plotly-r.com",
+            "author": [
+                {
+                    "family": "Sievert",
+                    "given": "Carson"
+                }
+            ],
+            "id": "plotly",
+            "issued": {
+                "date-parts": [
+                    [
+                        2020
+                    ]
+                ]
+            },
+            "title": "Interactive web-based data visualization with r, plotly, and shiny",
+            "type": "article-journal"
+        },
+        {
+            "URL": "https://CRAN.R-project.org/package=readxl",
+            "author": [
+                {
+                    "family": "Wickham",
+                    "given": "Hadley"
+                },
+                {
+                    "family": "Bryan",
+                    "given": "Jennifer"
+                }
+            ],
+            "id": "readxl",
+            "issued": {
+                "date-parts": [
+                    [
+                        2023
+                    ]
+                ]
+            },
+            "title": "Readxl: Read excel files",
+            "title-short": "Readxl",
+            "type": "article-journal"
+        },
+        {
+            "URL": "https://CRAN.R-project.org/package=agricolae",
+            "author": [
+                {
+                    "dropping-particle": "de",
+                    "family": "Mendiburu",
+                    "given": "Felipe"
+                }
+            ],
+            "id": "agricolae",
+            "issued": {
+                "date-parts": [
+                    [
+                        2023
+                    ]
+                ]
+            },
+            "title": "Agricolae: Statistical procedures for agricultural research",
+            "title-short": "Agricolae",
+            "type": "article-journal"
+        },
+        {
+            "URL": "https://CRAN.R-project.org/package=pwr",
+            "author": [
+                {
+                    "family": "Champely",
+                    "given": "Stephane"
+                }
+            ],
+            "id": "pwr",
+            "issued": {
+                "date-parts": [
+                    [
+                        2020
+                    ]
+                ]
+            },
+            "title": "Pwr: Basic functions for power analysis",
+            "title-short": "Pwr",
+            "type": "article-journal"
+        },
+        {
+            "URL": "https://CRAN.R-project.org/package=pwr2",
+            "author": [
+                {
+                    "family": "Lu",
+                    "given": "Pengcheng"
+                },
+                {
+                    "family": "Liu",
+                    "given": "Junhao"
+                },
+                {
+                    "family": "Koestler",
+                    "given": "Devin"
+                }
+            ],
+            "id": "pwr2",
+            "issued": {
+                "date-parts": [
+                    [
+                        2017
+                    ]
+                ]
+            },
+            "title": "pwr2: Power and sample size analysis for one-way and two-way ANOVA models",
+            "title-short": "pwr2",
+            "type": "article-journal"
+        },
+        {
+            "URL": "https://CRAN.R-project.org/package=tseries",
+            "author": [
+                {
+                    "family": "Trapletti",
+                    "given": "Adrian"
+                },
+                {
+                    "family": "Hornik",
+                    "given": "Kurt"
+                }
+            ],
+            "id": "tseries",
+            "issued": {
+                "date-parts": [
+                    [
+                        2024
+                    ]
+                ]
+            },
+            "title": "Tseries: Time series analysis and computational finance",
+            "title-short": "Tseries",
+            "type": "article-journal"
+        },
+        {
+            "URL": "https://CRAN.R-project.org/package=nortest",
+            "author": [
+                {
+                    "family": "Gross",
+                    "given": "Juergen"
+                },
+                {
+                    "family": "Ligges",
+                    "given": "Uwe"
+                }
+            ],
+            "id": "nortest",
+            "issued": {
+                "date-parts": [
+                    [
+                        2015
+                    ]
+                ]
+            },
+            "title": "Nortest: Tests for normality",
+            "title-short": "Nortest",
+            "type": "article-journal"
+        },
+        {
+            "URL": "https://CRAN.R-project.org/package=carData",
+            "author": [
+                {
+                    "family": "Fox",
+                    "given": "John"
+                },
+                {
+                    "family": "Weisberg",
+                    "given": "Sanford"
+                },
+                {
+                    "family": "Price",
+                    "given": "Brad"
+                }
+            ],
+            "id": "carData",
+            "issued": {
+                "date-parts": [
+                    [
+                        2022
+                    ]
+                ]
+            },
+            "title": "carData: Companion to applied regression data sets",
+            "title-short": "carData",
+            "type": "article-journal"
+        },
+        {
+            "URL": "https://socialsciences.mcmaster.ca/jfox/Books/Companion/",
+            "author": [
+                {
+                    "family": "Fox",
+                    "given": "John"
+                },
+                {
+                    "family": "Weisberg",
+                    "given": "Sanford"
+                }
+            ],
+            "id": "car",
+            "issued": {
+                "date-parts": [
+                    [
+                        2019
+                    ]
+                ]
+            },
+            "title": "An r companion to applied regression",
+            "type": "article-journal"
+        }
+    ],
+    "project_biblios": []
+}

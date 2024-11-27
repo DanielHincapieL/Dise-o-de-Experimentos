@@ -1,0 +1,19 @@
+project:
+  type: website
+
+website:
+  title: "Diseño De Experimentos"
+  navbar:
+    left:
+      - href: DDEDDA.qmd
+        text: DDEDDA.qmd
+      - about.qmd
+
+format:
+  html:
+    theme: lux
+    css: styles.css
+    toc: true
+
+editor: visual
+

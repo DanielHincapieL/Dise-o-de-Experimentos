@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="David Villegas - Angela Galvis - Daniel Felipe Hincapié">
+
+<title>Diseño De Experimentos - Optimización de la transferencia de bases de datos: Un análisis factorial del tipo de archivo, dispositivo de almacenamiento y uso de RAM</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "Sin resultados",
+    "search-matching-documents-text": "documentos encontrados",
+    "search-copy-link-title": "Copiar el enlace en la búsqueda",
+    "search-hide-matches-text": "Ocultar resultados adicionales",
+    "search-more-match-text": "resultado adicional en este documento",
+    "search-more-matches-text": "resultados adicionales en este documento",
+    "search-clear-button-title": "Borrar",
+    "search-detached-cancel-button-title": "Cancelar",
+    "search-submit-button-title": "Enviar",
+    "search-label": "Buscar"
+  }
+}</script>
+<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="site_libs/plotly-binding-4.10.4/plotly.js"></script>
+<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+<script src="site_libs/jquery-3.5.1/jquery.min.js"></script>
+<link href="site_libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet">
+<script src="site_libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
+<link href="site_libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet">
+<script src="site_libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Diseño De Experimentos</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Buscar"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Navegación de palanca" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="./DDEDDA.html" rel="" target="" aria-current="page">
+ <span class="menu-text">DDEDDA.qmd</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./about.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools ms-auto">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">En esta página</h2>
+   
+  <ul>
+  <li><a href="#introducción" id="toc-introducción" class="nav-link active" data-scroll-target="#introducción">Introducción</a></li>
+  <li><a href="#objetivos" id="toc-objetivos" class="nav-link" data-scroll-target="#objetivos">Objetivos</a></li>
+  <li><a href="#descripción-del-experimento" id="toc-descripción-del-experimento" class="nav-link" data-scroll-target="#descripción-del-experimento">Descripción del Experimento</a>
+  <ul class="collapse">
+  <li><a href="#objetivo" id="toc-objetivo" class="nav-link" data-scroll-target="#objetivo">Objetivo</a>
+  <ul class="collapse">
+  <li><a href="#diagrama-del-proceso" id="toc-diagrama-del-proceso" class="nav-link" data-scroll-target="#diagrama-del-proceso">Diagrama del proceso</a></li>
+  <li><a href="#variable-respuesta" id="toc-variable-respuesta" class="nav-link" data-scroll-target="#variable-respuesta">Variable respuesta</a></li>
+  <li><a href="#unidad-experimental" id="toc-unidad-experimental" class="nav-link" data-scroll-target="#unidad-experimental">Unidad experimental</a></li>
+  <li><a href="#número-de-tratamientos" id="toc-número-de-tratamientos" class="nav-link" data-scroll-target="#número-de-tratamientos">Número de tratamientos</a></li>
+  <li><a href="#número-de-réplicas-por-tratamiento" id="toc-número-de-réplicas-por-tratamiento" class="nav-link" data-scroll-target="#número-de-réplicas-por-tratamiento">Número de Réplicas por Tratamiento</a></li>
+  <li><a href="#número-de-réplicas-por-tratamiento-1" id="toc-número-de-réplicas-por-tratamiento-1" class="nav-link" data-scroll-target="#número-de-réplicas-por-tratamiento-1">Número de Réplicas por Tratamiento</a></li>
+  <li><a href="#aleatorización" id="toc-aleatorización" class="nav-link" data-scroll-target="#aleatorización">Aleatorización</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#análisis-exploratorio-de-nuestras-variables" id="toc-análisis-exploratorio-de-nuestras-variables" class="nav-link" data-scroll-target="#análisis-exploratorio-de-nuestras-variables">Análisis exploratorio de nuestras variables</a>
+  <ul class="collapse">
+  <li><a href="#gráficos-comparativos-boxplot" id="toc-gráficos-comparativos-boxplot" class="nav-link" data-scroll-target="#gráficos-comparativos-boxplot">Gráficos comparativos Boxplot</a>
+  <ul class="collapse">
+  <li><a href="#almacenamiento-y-tiempo" id="toc-almacenamiento-y-tiempo" class="nav-link" data-scroll-target="#almacenamiento-y-tiempo">Almacenamiento y Tiempo</a></li>
+  <li><a href="#archivos-y-tiempo" id="toc-archivos-y-tiempo" class="nav-link" data-scroll-target="#archivos-y-tiempo">Archivos y Tiempo</a></li>
+  <li><a href="#ram-y-tiempo" id="toc-ram-y-tiempo" class="nav-link" data-scroll-target="#ram-y-tiempo">RAM y Tiempo</a></li>
+  </ul></li>
+  <li><a href="#gráficos-de-medias-entre-el-tiempo-y-los-factores" id="toc-gráficos-de-medias-entre-el-tiempo-y-los-factores" class="nav-link" data-scroll-target="#gráficos-de-medias-entre-el-tiempo-y-los-factores">Gráficos de medias entre el tiempo y los factores</a></li>
+  <li><a href="#gráficos-de-interacción" id="toc-gráficos-de-interacción" class="nav-link" data-scroll-target="#gráficos-de-interacción">Gráficos de interacción</a>
+  <ul class="collapse">
+  <li><a href="#almacenamineto-vs-archivo" id="toc-almacenamineto-vs-archivo" class="nav-link" data-scroll-target="#almacenamineto-vs-archivo">Almacenamineto vs Archivo</a></li>
+  <li><a href="#archivo-vs-ram" id="toc-archivo-vs-ram" class="nav-link" data-scroll-target="#archivo-vs-ram">Archivo vs RAM</a></li>
+  <li><a href="#almacenamiento-vs-ram" id="toc-almacenamiento-vs-ram" class="nav-link" data-scroll-target="#almacenamiento-vs-ram">Almacenamiento vs RAM</a></li>
+  </ul></li>
+  <li><a href="#gráfico-de-los-diferentes-niveles-del-factor" id="toc-gráfico-de-los-diferentes-niveles-del-factor" class="nav-link" data-scroll-target="#gráfico-de-los-diferentes-niveles-del-factor">Gráfico de los diferentes niveles del factor</a></li>
+  </ul></li>
+  <li><a href="#modelos-de-regresión-y-efectos" id="toc-modelos-de-regresión-y-efectos" class="nav-link" data-scroll-target="#modelos-de-regresión-y-efectos">Modelos de regresión y efectos</a>
+  <ul class="collapse">
+  <li><a href="#modelos-de-regresion" id="toc-modelos-de-regresion" class="nav-link" data-scroll-target="#modelos-de-regresion">Modelos de regresion</a>
+  <ul class="collapse">
+  <li><a href="#modelo-1" id="toc-modelo-1" class="nav-link" data-scroll-target="#modelo-1">Modelo 1</a></li>
+  <li><a href="#modelo-2" id="toc-modelo-2" class="nav-link" data-scroll-target="#modelo-2">Modelo 2</a></li>
+  <li><a href="#modelo-3" id="toc-modelo-3" class="nav-link" data-scroll-target="#modelo-3">Modelo 3</a></li>
+  </ul></li>
+  <li><a href="#modelos-de-efectos" id="toc-modelos-de-efectos" class="nav-link" data-scroll-target="#modelos-de-efectos">Modelos de efectos</a>
+  <ul class="collapse">
+  <li><a href="#anova-1" id="toc-anova-1" class="nav-link" data-scroll-target="#anova-1">Anova 1</a></li>
+  <li><a href="#anova-2" id="toc-anova-2" class="nav-link" data-scroll-target="#anova-2">Anova 2</a></li>
+  <li><a href="#anova-3" id="toc-anova-3" class="nav-link" data-scroll-target="#anova-3">Anova 3</a></li>
+  </ul></li>
+  <li><a href="#análisis-de-varianza" id="toc-análisis-de-varianza" class="nav-link" data-scroll-target="#análisis-de-varianza">Análisis de varianza</a></li>
+  </ul></li>
+  <li><a href="#validación-del-modelo" id="toc-validación-del-modelo" class="nav-link" data-scroll-target="#validación-del-modelo">Validación del modelo</a>
+  <ul class="collapse">
+  <li><a href="#normalidad" id="toc-normalidad" class="nav-link" data-scroll-target="#normalidad">Normalidad</a>
+  <ul class="collapse">
+  <li><a href="#gráficos" id="toc-gráficos" class="nav-link" data-scroll-target="#gráficos">Gráficos</a></li>
+  <li><a href="#prueba-estadística" id="toc-prueba-estadística" class="nav-link" data-scroll-target="#prueba-estadística">Prueba estadística</a></li>
+  </ul></li>
+  <li><a href="#homocedasticidad" id="toc-homocedasticidad" class="nav-link" data-scroll-target="#homocedasticidad">Homocedasticidad</a>
+  <ul class="collapse">
+  <li><a href="#gráficos-1" id="toc-gráficos-1" class="nav-link" data-scroll-target="#gráficos-1">Gráficos</a></li>
+  <li><a href="#prueba-estadística-1" id="toc-prueba-estadística-1" class="nav-link" data-scroll-target="#prueba-estadística-1">Prueba estadística</a></li>
+  </ul></li>
+  <li><a href="#independencia" id="toc-independencia" class="nav-link" data-scroll-target="#independencia">Independencia</a>
+  <ul class="collapse">
+  <li><a href="#gráficos-2" id="toc-gráficos-2" class="nav-link" data-scroll-target="#gráficos-2">Gráficos</a></li>
+  <li><a href="#prueba-estadística-2" id="toc-prueba-estadística-2" class="nav-link" data-scroll-target="#prueba-estadística-2">Prueba estadística**</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#comparación-de-tratamientos" id="toc-comparación-de-tratamientos" class="nav-link" data-scroll-target="#comparación-de-tratamientos">Comparación de tratamientos</a>
+  <ul class="collapse">
+  <li><a href="#comparación-de-medias-de-tratamientos" id="toc-comparación-de-medias-de-tratamientos" class="nav-link" data-scroll-target="#comparación-de-medias-de-tratamientos">Comparación de medias de tratamientos</a></li>
+  </ul></li>
+  <li><a href="#gráfico-de-superficie-y-modelo-de-respuesta" id="toc-gráfico-de-superficie-y-modelo-de-respuesta" class="nav-link" data-scroll-target="#gráfico-de-superficie-y-modelo-de-respuesta">Gráfico de superficie y modelo de respuesta</a></li>
+  <li><a href="#potencia" id="toc-potencia" class="nav-link" data-scroll-target="#potencia">Potencia</a>
+  <ul class="collapse">
+  <li><a href="#preguntas-a-responder" id="toc-preguntas-a-responder" class="nav-link" data-scroll-target="#preguntas-a-responder">Preguntas a responder</a></li>
+  </ul></li>
+  <li><a href="#conclusiones" id="toc-conclusiones" class="nav-link" data-scroll-target="#conclusiones">Conclusiones</a></li>
+  <li><a href="#referencias" id="toc-referencias" class="nav-link" data-scroll-target="#referencias">Referencias</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Optimización de la transferencia de bases de datos: Un análisis factorial del tipo de archivo, dispositivo de almacenamiento y uso de RAM</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Autor/a</div>
+    <div class="quarto-title-meta-contents">
+             <p>David Villegas - Angela Galvis - Daniel Felipe Hincapié </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Fecha de publicación</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">27 de noviembre de 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<div style="text-align: justify;">
+
+
+
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="AdeD.jpg" class="img-fluid figure-img" width="700"></p>
+</figure>
+</div>
+<section id="introducción" class="level1">
+<h1>Introducción</h1>
+<p>Actualmente, el análisis de datos ha experimentado popularidad debido a la creciente importancia de la toma de decisiones basada en información cuantitativa y cualitativa. Organizaciones de todos los sectores están adoptando tecnologías avanzadas para recopilar, procesar y analizar datos, lo que ha llevado a un aumento exponencial en el tamaño de las bases de datos, lo que trae consigo nuevos desafíos relacionados con el manejo eficiente de grandes volúmenes de información.</p>
+<p>En este contexto, DataXD, una empresa especializada en el análisis de datos, enfrenta dificultades debido a los largos tiempos de transferencia de archivos, especialmente en operaciones que involucran dispositivos de almacenamiento y distintos sistemas. Estas demoras representan un importante cuello de botella en sus procesos operativos, impactando negativamente la productividad y limitando su capacidad para entregar resultados en tiempos competitivos. El manejo ineficiente de la transferencia de datos genera tiempos muertos innecesarios, desperdicio de recursos y mayores costos operativos.</p>
+<p>Esto hace indispensable analizar y optimizar los factores que influyen en estos tiempos. Por ello, este estudio busca identificar cómo el tipo de archivo, el tipo de dispositivo de almacenamiento y el uso de recursos tecnológicos, específicamente la memoria RAM inciden en el tiempo de transferencia de las bases de datos, para generar soluciones prácticas y aplicables desde la perspectiva de la ingeniería industrial, optimizando los procesos tecnológicos, reduciendo tiempos de espera y mejorando la eficiencia operativa de DataXD, contribuyendo así a la mejora continua de sus procesos.</p>
+</section>
+<section id="objetivos" class="level1">
+<h1>Objetivos</h1>
+<ol type="1">
+<li><p>Analizar los tres factores seleccionados para ver la influencia de estos en la transferencia de bases de datos a partir de análisis de regresión.</p></li>
+<li><p>Optimizar el proceso de transferencia de datos para reducir el tiempo de descarga de las bases de datos de gran volumen. analizando cómo el tipo de archivo, tipo de dispositivo de almacenamiento y uso de RAM impactan en el tiempo de descarga, reduciendo así tiempos muertos y aumentando la eficiencia operativa de la empresa.</p></li>
+<li><p>Establecer la mejor combinación de tipo de archivo, dispositivo de almacenamiento y uso de RAM, con la finalidad de eliminar del proceso productivo aquellos que no son eficientes ni eficaces con la labor de la empresa.</p></li>
+</ol>
+</section>
+<section id="descripción-del-experimento" class="level1">
+<h1>Descripción del Experimento</h1>
+<section id="objetivo" class="level2">
+<h2 class="anchored" data-anchor-id="objetivo">Objetivo</h2>
+<p>Determinar el tiempo que se demora en transferir una base de datos a diferentes tipos de almacenamiento, diferentes tipos de archivos y a diferentes porcentajes de uso de de la RAM.</p>
+<section id="diagrama-del-proceso" class="level3">
+<h3 class="anchored" data-anchor-id="diagrama-del-proceso">Diagrama del proceso</h3>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="diagrama del proceso.jpg" class="img-fluid figure-img" width="700"></p>
+</figure>
+</div>
+</section>
+<section id="variable-respuesta" class="level3">
+<h3 class="anchored" data-anchor-id="variable-respuesta">Variable respuesta</h3>
+<p>Tiempo de transferencia de datos (segundos).</p>
+</section>
+<section id="unidad-experimental" class="level3">
+<h3 class="anchored" data-anchor-id="unidad-experimental">Unidad experimental</h3>
+<p>Base de Datos (más de 1’000.000 de datos).</p>
+</section>
+<section id="número-de-tratamientos" class="level3">
+<h3 class="anchored" data-anchor-id="número-de-tratamientos">Número de tratamientos</h3>
+<p>• Tipos de almacenamiento: 3 Niveles (USB, Disco duro y La Nube)</p>
+<p>• Tipos de archivos: 3 Niveles (xlsx, csv y txt)</p>
+<p>• Uso de la memoria RAM: 3 Niveles (30%, 50% y 70%)</p>
+<p>Total de tratamientos: 3×3×3= 27 Tratamientos.</p>
+</section>
+<section id="número-de-réplicas-por-tratamiento" class="level3">
+<h3 class="anchored" data-anchor-id="número-de-réplicas-por-tratamiento">Número de Réplicas por Tratamiento</h3>
+<p>Para asegurar la validez y robustez de los resultados obtenidos, se harán 3 réplicas por cada tratamiento.</p>
+</section>
+<section id="número-de-réplicas-por-tratamiento-1" class="level3">
+<h3 class="anchored" data-anchor-id="número-de-réplicas-por-tratamiento-1">Número de Réplicas por Tratamiento</h3>
+<p>Total de observaciones: 27 tratamientos × 3 réplicas = 81 Observaciones.</p>
+</section>
+<section id="aleatorización" class="level3">
+<h3 class="anchored" data-anchor-id="aleatorización">Aleatorización</h3>
+<p>Para aleatorizar el experimento se uso la función <em>SAMPLE</em> de R, esta función arrojó valores de 1 a 81 sin repetir ninguno de estos. Las muestras del experimento se tomaron en este orden, tal como se puede observar en la siguiente imagen:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Aleotarización.jpg" class="img-fluid figure-img" width="700"></p>
+</figure>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 81 × 4
+   Almacenamiento Archivo   RAM Tiempo
+            &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+ 1              1       1     1   5.43
+ 2              2       2     1   2.65
+ 3              3       2     1   4.7 
+ 4              3       2     2   4.07
+ 5              3       1     1   3.91
+ 6              2       2     2   2.13
+ 7              1       1     3   6.26
+ 8              2       1     2   1.78
+ 9              2       3     2   2.32
+10              2       3     3   2.43
+# ℹ 71 more rows</code></pre>
+</div>
+</div>
+<p>Transformamos nuestras variables de númericas a factores para hacer los análisis.</p>
+</section>
+</section>
+</section>
+<section id="análisis-exploratorio-de-nuestras-variables" class="level1">
+<h1>Análisis exploratorio de nuestras variables</h1>
+<p>A continuación, se presentan gráficos boxplot comparativos, de medias, de interacción y de diseño, de los tres factores contra la variable respuesta (Tiempo de transferencia), proporcionando una visión detallada de los datos y sus relaciones.</p>
+<section id="gráficos-comparativos-boxplot" class="level2">
+<h2 class="anchored" data-anchor-id="gráficos-comparativos-boxplot">Gráficos comparativos Boxplot</h2>
+<section id="almacenamiento-y-tiempo" class="level3">
+<h3 class="anchored" data-anchor-id="almacenamiento-y-tiempo">Almacenamiento y Tiempo</h3>
+<p>El boxplot entre almacenamiento y tiempo de transferenecia, muestra la siguiente información: El tipo de almacenamiento 1 correspondiente a la USB, requiere un mayor tiempo para transferir la base de datos, además, se puede ver una variabilidad mayor en comparación con los otros dos tipos de alamacenamiento. El tipo de almacenamiento 2 corresponde al Disco Duro, este requiere un menor tiempo requerido para hacer la transferencia de la base de datos y, su media ronda los 2,4 segundos. Por último, el tipo de almacenamiento 3 correspondiente a la Nube, es la segunda mejor opción para transferir la base de datos, pues, su media ronda los 3,8 segundos.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="DDEDDA_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="archivos-y-tiempo" class="level3">
+<h3 class="anchored" data-anchor-id="archivos-y-tiempo">Archivos y Tiempo</h3>
+<p>El boxplot entre archivo y tiempo de transferenecia, muestra la siguiente información: La media de los tres tipos de archivo es muy similar ya que rondan entre los 3,7 y 4 segundos, sin embargo, se puede observar que el tipo de archivo 2 y 3 que corresponde a un archivo CSV y TXT, respectivamente, tiene una variabilidad más amplia del tiempo de transferencia de la base de datos, comparándola con el tipo de archivo 1, el cual es un archivo tipo XSLX.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="DDEDDA_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="ram-y-tiempo" class="level3">
+<h3 class="anchored" data-anchor-id="ram-y-tiempo">RAM y Tiempo</h3>
+<p>El boxplot entre el uso de la RAM y el tiempo de transferenecia, muestra la siguiente información: Se puede afirmar que las medias de los tres tipos de usos de RAM son muy parecidas entre ellas, observando un rango de media entre 3,6 y 4 segundos. Del mismo modo, la variabilidad en el tiempo de los tres tipos cuentan con un rango similar, pues, sus valores estan entre los 2,5 segundos y 6,2 segundos, siendo el de mayor variabilidad la RAM 2 que corresponde al 50%. La RAM 1 y 3 tienen una variabilidad mucho más similar entre ellas, pero no muy alejadas de la RAM 2..</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="DDEDDA_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="gráficos-de-medias-entre-el-tiempo-y-los-factores" class="level2">
+<h2 class="anchored" data-anchor-id="gráficos-de-medias-entre-el-tiempo-y-los-factores">Gráficos de medias entre el tiempo y los factores</h2>
+<p>En los siguientes gráficos de medias podemos observar las medias del tiempo de transferencia vs el tipo de almacenamiento, tipo de archivo y uso de la RAM.</p>
+<p>En el grafico 1 se puede analizar que los tiempos promedios del tipo de almacenamiento 1 correspondiente a la USB es la mayor de todas, mientras que el tipo de almacenamiento 2 correspondiente al Disco Duro es el de menor tiempo promedio de transferencia.</p>
+<p>En el gráfico 2 el cual corresponde al tiempo vs archivo se puede asegurar que el tipo de archivo que necesita menos tiempo promedio en transferirse es el archivo , correspondiente archivo XLSX, como contraparte, el archivo que más necesita tiempo es el tipo de archivo número 2 el cual corresponde al archivo CSV.</p>
+<p>En el gráfico 3 que corresponde al tiempo vs RAM se observan tiempos muy similares, sin embargo, la que necesita menos tiempo promedio en transferirse es la RAM 1 la cual corresponde al uso de la RAM del 30% , por otro lado, el mayor tiempo promedio requerido para la transferencia de datos es la RAM 2 que corresponde al uso de la RAM del 50%. Este resultado podría ir en contra de la lógica, pues, se esperaría que la RAM 3 que corresponde al uso del 70% debería necesitar más tiempo de transferencia.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="DDEDDA_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="gráficos-de-interacción" class="level2">
+<h2 class="anchored" data-anchor-id="gráficos-de-interacción">Gráficos de interacción</h2>
+<p>En estas gráficas vamos a poder observar como interactuan los factores por pares respecto al tiempo de transferencia.</p>
+<section id="almacenamineto-vs-archivo" class="level3">
+<h3 class="anchored" data-anchor-id="almacenamineto-vs-archivo">Almacenamineto vs Archivo</h3>
+<p>En el gráfico 1 podemos observar las lineas de archivo 2 y 3 no tienen diferencias significativas, esto es debido a que tiene tiempos de transferencia similares, contrario a al archivo 1 que corresponde al archivo XLSX, este tipo de archivo dependiendo su tipo de almacenamiento es un tiempo promedio menor a los otros.</p>
+<p>En el gráfico 2 se pueden detallar tiempos de transferencia diferentes entre ellos, se puede afirmar que el tipo de almacenamiento 1 correspondiente a la USB, independientemente de los tres tipos de archivo son los que más se demoran en el tiempo de transferencia, además, el almacenamiento 2 correspondiente al Disco Duro, es el de menor tiempo promedio requerido para la transferencia en todos los tipos de archivo.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="DDEDDA_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="archivo-vs-ram" class="level3">
+<h3 class="anchored" data-anchor-id="archivo-vs-ram">Archivo vs RAM</h3>
+<p>En el gráfico 1 podemos observar las lineas de RAM 1,2 y 3, estas no se sobreponen pero sí siguen la misma tendencia, ya que tienen tiempos de transferencia similares. Sin embargo, en el archivo 3 y debido a la RAM 1 (uso del 30%) se puede ver un cambio significativo en el tiempo de transferencia de la base de datos respecto a las otras en este archivo (TXT).</p>
+<p>En el gráfico 2 se pueden detallar tiempos de transferencia diferentes entre ellos, además, se puede afirmar que el tipo de archivo 1 correspondiente a XLSX es el que menos tiempo necesita para transferirse sin importar el uso de la RAM. De los otros tipos de archivo podemos observar un tiempo de carga similar entre ellos, donde la diferencia más notoria es en la uso de la RAM 1 la cual corresponde al 30%.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="DDEDDA_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="almacenamiento-vs-ram" class="level3">
+<h3 class="anchored" data-anchor-id="almacenamiento-vs-ram">Almacenamiento vs RAM</h3>
+<p>En el gráfico 1 podemos observar que los diferentes usos de la RAM no son significativas entre ellas, pues, sus tiempos de transferencia son muy similares, independientes de los tipos de almacenamiento.</p>
+<p>En el gráfico 2 se pueden visualizar tiempos de transferencia diferentes entre ellos, además, afirmando que el tipo de almacenamieneto 1 (USB) es el que más tiempo necesita para transferirse independiente del uso de la RAM, adicionlamente, el tipo de almacenamineto 2 (Disco Duro) es el que menos tiempo necesita para la transferencia de la base de datos en cualquier caso de uso de la RAM.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="DDEDDA_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="gráfico-de-los-diferentes-niveles-del-factor" class="level2">
+<h2 class="anchored" data-anchor-id="gráfico-de-los-diferentes-niveles-del-factor">Gráfico de los diferentes niveles del factor</h2>
+<p>Con esta gráfica podemos observar que la media general esta en casi 5 segundos, los tipos de almacenamiento son los que más variabilidad presentan respecto al promedio del tiempo de transferencia, por otro lado, el tipo de archivo es el que le sigue en variabilidad, sin embargo, podemos notar que no varía mucho respecto al promedio y, que el tipo de archivo 2 y 3 tienen tiempos promedio parecidos entre ellos. Por último, en el uso de la RAM se puede observar una variabilidad muy pequeña respecto al tiempo promedio y, por ende, poca diferencia entre los tiempos promedio de cada uso de la RAM.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="DDEDDA_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="modelos-de-regresión-y-efectos" class="level1">
+<h1>Modelos de regresión y efectos</h1>
+<p>En este parte del análisis vamos a plantear diferentes modelos de regresión y de efectos para llegar al mejor modelo posible y, en base a este modelo, encontrar la mejor combinación de factores que reduzca al máximo el tiempo de transferencia de las bases de datos.</p>
+<section id="modelos-de-regresion" class="level2">
+<h2 class="anchored" data-anchor-id="modelos-de-regresion">Modelos de regresion</h2>
+<section id="modelo-1" class="level3">
+<h3 class="anchored" data-anchor-id="modelo-1">Modelo 1</h3>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Tiempo ~ Almacenamiento * Archivo * RAM, data = ZZZ)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-2.0967 -0.3167 -0.0600  0.3333  1.5700 
+
+Coefficients:
+                              Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                    4.42667    0.41152  10.757 4.85e-15 ***
+Almacenamiento2               -3.40667    0.58197  -5.854 2.92e-07 ***
+Almacenamiento3               -0.41667    0.58197  -0.716   0.4771    
+Archivo2                       5.73000    0.58197   9.846 1.18e-13 ***
+Archivo3                       5.13000    0.58197   8.815 4.88e-12 ***
+RAM2                           0.53667    0.58197   0.922   0.3606    
+RAM3                           0.90000    0.58197   1.546   0.1278    
+Almacenamiento2:Archivo2      -4.39667    0.82304  -5.342 1.89e-06 ***
+Almacenamiento3:Archivo2      -5.63000    0.82304  -6.841 7.48e-09 ***
+Almacenamiento2:Archivo3      -4.02667    0.82304  -4.892 9.37e-06 ***
+Almacenamiento3:Archivo3      -5.49333    0.82304  -6.674 1.39e-08 ***
+Almacenamiento2:RAM2          -0.13667    0.82304  -0.166   0.8687    
+Almacenamiento3:RAM2          -0.40333    0.82304  -0.490   0.6261    
+Almacenamiento2:RAM3          -0.55000    0.82304  -0.668   0.5068    
+Almacenamiento3:RAM3          -1.50667    0.82304  -1.831   0.0727 .  
+Archivo2:RAM2                 -0.28333    0.82304  -0.344   0.7320    
+Archivo3:RAM2                  0.61333    0.82304   0.745   0.4594    
+Archivo2:RAM3                 -0.72000    0.82304  -0.875   0.3856    
+Archivo3:RAM3                  0.44667    0.82304   0.543   0.5896    
+Almacenamiento2:Archivo2:RAM2 -0.03333    1.16395  -0.029   0.9773    
+Almacenamiento3:Archivo2:RAM2  0.88000    1.16395   0.756   0.4529    
+Almacenamiento2:Archivo3:RAM2 -0.86333    1.16395  -0.742   0.4615    
+Almacenamiento3:Archivo3:RAM2 -0.30000    1.16395  -0.258   0.7976    
+Almacenamiento2:Archivo2:RAM3  0.43333    1.16395   0.372   0.7111    
+Almacenamiento3:Archivo2:RAM3  1.30667    1.16395   1.123   0.2666    
+Almacenamiento2:Archivo3:RAM3 -0.79667    1.16395  -0.684   0.4966    
+Almacenamiento3:Archivo3:RAM3  0.35000    1.16395   0.301   0.7648    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.7128 on 54 degrees of freedom
+Multiple R-squared:  0.967, Adjusted R-squared:  0.9511 
+F-statistic: 60.91 on 26 and 54 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</section>
+<section id="modelo-2" class="level3">
+<h3 class="anchored" data-anchor-id="modelo-2">Modelo 2</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>modelolm2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Tiempo<span class="sc">~</span> Almacenamiento <span class="sc">*</span> Archivo <span class="sc">+</span> RAM, <span class="at">data =</span> ZZZ)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelolm2)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Tiempo ~ Almacenamiento * Archivo + RAM, data = ZZZ)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-2.0083 -0.3731 -0.0642  0.3114  1.8647 
+
+Coefficients:
+                         Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                4.6727     0.2494  18.739  &lt; 2e-16 ***
+Almacenamiento2           -3.6356     0.3190 -11.397  &lt; 2e-16 ***
+Almacenamiento3           -1.0533     0.3190  -3.302  0.00151 ** 
+Archivo2                   5.3956     0.3190  16.915  &lt; 2e-16 ***
+Archivo3                   5.4833     0.3190  17.190  &lt; 2e-16 ***
+RAM2                       0.4315     0.1842   2.343  0.02198 *  
+RAM3                       0.2670     0.1842   1.450  0.15153    
+Almacenamiento2:Archivo2  -4.2633     0.4511  -9.451 3.97e-14 ***
+Almacenamiento3:Archivo2  -4.9011     0.4511 -10.864  &lt; 2e-16 ***
+Almacenamiento2:Archivo3  -4.5800     0.4511 -10.153 2.12e-15 ***
+Almacenamiento3:Archivo3  -5.4767     0.4511 -12.140  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.6767 on 70 degrees of freedom
+Multiple R-squared:  0.9615,    Adjusted R-squared:  0.956 
+F-statistic: 174.7 on 10 and 70 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</section>
+<section id="modelo-3" class="level3">
+<h3 class="anchored" data-anchor-id="modelo-3">Modelo 3</h3>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Tiempo ~ Almacenamiento * Archivo, data = ZZZ)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-2.2411 -0.3100 -0.1211  0.2967  2.0633 
+
+Coefficients:
+                         Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                4.9056     0.2311  21.225  &lt; 2e-16 ***
+Almacenamiento2           -3.6356     0.3268 -11.123  &lt; 2e-16 ***
+Almacenamiento3           -1.0533     0.3268  -3.223  0.00191 ** 
+Archivo2                   5.3956     0.3268  16.508  &lt; 2e-16 ***
+Archivo3                   5.4833     0.3268  16.776  &lt; 2e-16 ***
+Almacenamiento2:Archivo2  -4.2633     0.4622  -9.223 8.03e-14 ***
+Almacenamiento3:Archivo2  -4.9011     0.4622 -10.603 2.34e-16 ***
+Almacenamiento2:Archivo3  -4.5800     0.4622  -9.908 4.35e-15 ***
+Almacenamiento3:Archivo3  -5.4767     0.4622 -11.848  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.6934 on 72 degrees of freedom
+Multiple R-squared:  0.9584,    Adjusted R-squared:  0.9538 
+F-statistic: 207.3 on 8 and 72 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>En todos los modelos que se plantearon anteriormente, se puede analizar, como observabamos en los gráficos de análisis exploratorios que la RAM no es un factor significativo para determinar el tiempo de transferencia. Esto se puede visualizar en los modelo de regresión, pues, al interactuar el uso de la RAM con los otros dos factores(Almacenamiento y Archivo) no daban significativos, por ende, tomamos la decisión de utilizar el modelolm3 el cual no incluye el factor uso de la RAM, aunque nuestro valor de la R-cuadrada ajustada nos de un poquito menor en este modelo.</p>
+</section>
+</section>
+<section id="modelos-de-efectos" class="level2">
+<h2 class="anchored" data-anchor-id="modelos-de-efectos">Modelos de efectos</h2>
+<section id="anova-1" class="level3">
+<h3 class="anchored" data-anchor-id="anova-1">Anova 1</h3>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Tiempo ~ Almacenamiento * Archivo * RAM, data = ZZZ)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-2.0967 -0.3167 -0.0600  0.3333  1.5700 
+
+Coefficients:
+                              Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                    4.42667    0.41152  10.757 4.85e-15 ***
+Almacenamiento2               -3.40667    0.58197  -5.854 2.92e-07 ***
+Almacenamiento3               -0.41667    0.58197  -0.716   0.4771    
+Archivo2                       5.73000    0.58197   9.846 1.18e-13 ***
+Archivo3                       5.13000    0.58197   8.815 4.88e-12 ***
+RAM2                           0.53667    0.58197   0.922   0.3606    
+RAM3                           0.90000    0.58197   1.546   0.1278    
+Almacenamiento2:Archivo2      -4.39667    0.82304  -5.342 1.89e-06 ***
+Almacenamiento3:Archivo2      -5.63000    0.82304  -6.841 7.48e-09 ***
+Almacenamiento2:Archivo3      -4.02667    0.82304  -4.892 9.37e-06 ***
+Almacenamiento3:Archivo3      -5.49333    0.82304  -6.674 1.39e-08 ***
+Almacenamiento2:RAM2          -0.13667    0.82304  -0.166   0.8687    
+Almacenamiento3:RAM2          -0.40333    0.82304  -0.490   0.6261    
+Almacenamiento2:RAM3          -0.55000    0.82304  -0.668   0.5068    
+Almacenamiento3:RAM3          -1.50667    0.82304  -1.831   0.0727 .  
+Archivo2:RAM2                 -0.28333    0.82304  -0.344   0.7320    
+Archivo3:RAM2                  0.61333    0.82304   0.745   0.4594    
+Archivo2:RAM3                 -0.72000    0.82304  -0.875   0.3856    
+Archivo3:RAM3                  0.44667    0.82304   0.543   0.5896    
+Almacenamiento2:Archivo2:RAM2 -0.03333    1.16395  -0.029   0.9773    
+Almacenamiento3:Archivo2:RAM2  0.88000    1.16395   0.756   0.4529    
+Almacenamiento2:Archivo3:RAM2 -0.86333    1.16395  -0.742   0.4615    
+Almacenamiento3:Archivo3:RAM2 -0.30000    1.16395  -0.258   0.7976    
+Almacenamiento2:Archivo2:RAM3  0.43333    1.16395   0.372   0.7111    
+Almacenamiento3:Archivo2:RAM3  1.30667    1.16395   1.123   0.2666    
+Almacenamiento2:Archivo3:RAM3 -0.79667    1.16395  -0.684   0.4966    
+Almacenamiento3:Archivo3:RAM3  0.35000    1.16395   0.301   0.7648    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.7128 on 54 degrees of freedom
+Multiple R-squared:  0.967, Adjusted R-squared:  0.9511 
+F-statistic: 60.91 on 26 and 54 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</section>
+<section id="anova-2" class="level3">
+<h3 class="anchored" data-anchor-id="anova-2">Anova 2</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>modeloaov2 <span class="ot">&lt;-</span> <span class="fu">aov</span>(Tiempo<span class="sc">~</span> Almacenamiento <span class="sc">*</span> Archivo <span class="sc">+</span> RAM, <span class="at">data =</span> ZZZ)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(modelolm2)</span></code><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Tiempo ~ Almacenamiento * Archivo + RAM, data = ZZZ)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-2.0083 -0.3731 -0.0642  0.3114  1.8647 
+
+Coefficients:
+                         Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                4.6727     0.2494  18.739  &lt; 2e-16 ***
+Almacenamiento2           -3.6356     0.3190 -11.397  &lt; 2e-16 ***
+Almacenamiento3           -1.0533     0.3190  -3.302  0.00151 ** 
+Archivo2                   5.3956     0.3190  16.915  &lt; 2e-16 ***
+Archivo3                   5.4833     0.3190  17.190  &lt; 2e-16 ***
+RAM2                       0.4315     0.1842   2.343  0.02198 *  
+RAM3                       0.2670     0.1842   1.450  0.15153    
+Almacenamiento2:Archivo2  -4.2633     0.4511  -9.451 3.97e-14 ***
+Almacenamiento3:Archivo2  -4.9011     0.4511 -10.864  &lt; 2e-16 ***
+Almacenamiento2:Archivo3  -4.5800     0.4511 -10.153 2.12e-15 ***
+Almacenamiento3:Archivo3  -5.4767     0.4511 -12.140  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.6767 on 70 degrees of freedom
+Multiple R-squared:  0.9615,    Adjusted R-squared:  0.956 
+F-statistic: 174.7 on 10 and 70 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</section>
+<section id="anova-3" class="level3">
+<h3 class="anchored" data-anchor-id="anova-3">Anova 3</h3>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Tiempo ~ Almacenamiento * Archivo, data = ZZZ)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-2.2411 -0.3100 -0.1211  0.2967  2.0633 
+
+Coefficients:
+                         Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                4.9056     0.2311  21.225  &lt; 2e-16 ***
+Almacenamiento2           -3.6356     0.3268 -11.123  &lt; 2e-16 ***
+Almacenamiento3           -1.0533     0.3268  -3.223  0.00191 ** 
+Archivo2                   5.3956     0.3268  16.508  &lt; 2e-16 ***
+Archivo3                   5.4833     0.3268  16.776  &lt; 2e-16 ***
+Almacenamiento2:Archivo2  -4.2633     0.4622  -9.223 8.03e-14 ***
+Almacenamiento3:Archivo2  -4.9011     0.4622 -10.603 2.34e-16 ***
+Almacenamiento2:Archivo3  -4.5800     0.4622  -9.908 4.35e-15 ***
+Almacenamiento3:Archivo3  -5.4767     0.4622 -11.848  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.6934 on 72 degrees of freedom
+Multiple R-squared:  0.9584,    Adjusted R-squared:  0.9538 
+F-statistic: 207.3 on 8 and 72 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>Del mismo modo que en la creación de modelos de regresión, en la creación de los modelos de efectos, la RAM y las interacciones que esta tenía no daban significativas, por este mismo motivo, elegimos el modeloaov3 para analizar el tiempo de transferencia de la base de datos utilizando sólo los dos factores significativos.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>                       Df Sum Sq Mean Sq F value Pr(&gt;F)    
+Almacenamiento          2  611.9  305.96  636.45 &lt;2e-16 ***
+Archivo                 2   90.6   45.29   94.21 &lt;2e-16 ***
+Almacenamiento:Archivo  4   94.9   23.72   49.34 &lt;2e-16 ***
+Residuals              72   34.6    0.48                   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Tiempo ~ Almacenamiento * Archivo, data = ZZZ)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-2.2411 -0.3100 -0.1211  0.2967  2.0633 
+
+Coefficients:
+                         Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                4.9056     0.2311  21.225  &lt; 2e-16 ***
+Almacenamiento2           -3.6356     0.3268 -11.123  &lt; 2e-16 ***
+Almacenamiento3           -1.0533     0.3268  -3.223  0.00191 ** 
+Archivo2                   5.3956     0.3268  16.508  &lt; 2e-16 ***
+Archivo3                   5.4833     0.3268  16.776  &lt; 2e-16 ***
+Almacenamiento2:Archivo2  -4.2633     0.4622  -9.223 8.03e-14 ***
+Almacenamiento3:Archivo2  -4.9011     0.4622 -10.603 2.34e-16 ***
+Almacenamiento2:Archivo3  -4.5800     0.4622  -9.908 4.35e-15 ***
+Almacenamiento3:Archivo3  -5.4767     0.4622 -11.848  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.6934 on 72 degrees of freedom
+Multiple R-squared:  0.9584,    Adjusted R-squared:  0.9538 
+F-statistic: 207.3 on 8 and 72 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>Por ende, los modelos seleccionados para hacer estos análisis van a ser el modelolm3 renombrado modelolm y el modeloaov3 renombrado modelo.</p>
+</section>
+</section>
+<section id="análisis-de-varianza" class="level2">
+<h2 class="anchored" data-anchor-id="análisis-de-varianza">Análisis de varianza</h2>
+<p>A la hora de calcular la cantidad controlable llamada Tratamiento para el modelo escogido encontramos que, el porcentaje controlable es de 95,84% y la cantidad no controlable, llamada Error, es de 4,16%. Esto es un buen indicador, pues el modelo escogido tiene buen efecto, debido a que su mayor porcentaje de variabilidad se debe a los tratamiento y no al error.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.9583977</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.04160232</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="validación-del-modelo" class="level1">
+<h1>Validación del modelo</h1>
+<p>Aunque el modelo elegido tenga un excelente porcentaje de predicción y control, es necesario comprobar que sea válido estadísticamente, por esto, vamos a someterlo a pruebas de normalidad, varianza constante e independencia.</p>
+<section id="normalidad" class="level2">
+<h2 class="anchored" data-anchor-id="normalidad">Normalidad</h2>
+<section id="gráficos" class="level3">
+<h3 class="anchored" data-anchor-id="gráficos">Gráficos</h3>
+<p>En los siguientes gráficos podemos observar que el modelo no tiene una tendencia de normalidad, esto es debido a que en el gráfico 1 se puede observar que varios datos no están entre las bandas de confianza, lo que quiere decir que los datos no cumplen una tendencia normal, similarmente, en el gráfico del histograma también podemos observar que los datos aunque siguen una tendencia simetrica normal, algunas de las barras no tienen la misma altura a su contraparte, por ende, se concluye que no siguen una distribución normal.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="DDEDDA_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 42 41</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="DDEDDA_files/figure-html/unnamed-chunk-21-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="prueba-estadística" class="level3">
+<h3 class="anchored" data-anchor-id="prueba-estadística">Prueba estadística</h3>
+<p>Como se puedo observar anteriormente, este modelo no cumple el supuesto de normalidad, ya que sus valores p en las diferentes pruebas dan menor al nivel de significancia determinado en 0.05.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Shapiro-Wilk normality test
+
+data:  residuales
+W = 0.94094, p-value = 0.0009964</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Anderson-Darling normality test
+
+data:  residuales
+A = 1.8063, p-value = 0.0001167</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Jarque Bera Test
+
+data:  residuales
+X-squared = 14.629, df = 2, p-value = 0.0006658</code></pre>
+</div>
+</div>
+<p>Como este modelo no cumple el supuesto de normalidad no se debería seguir con la validación, pero, debido a que es un análisis exploratorio y que con el histograma de los residuales podemos ver que los datos tienen un aire a una distribución normal, decidimos seguir trabajando con este modelo.</p>
+</section>
+</section>
+<section id="homocedasticidad" class="level2">
+<h2 class="anchored" data-anchor-id="homocedasticidad">Homocedasticidad</h2>
+<section id="gráficos-1" class="level3">
+<h3 class="anchored" data-anchor-id="gráficos-1">Gráficos</h3>
+<p>De acuerdo a la gráfica podemos afirmar que los datos no siguen una tendencia en especifico, y que se encuentran dentro de las bandas de confianza, por ende, podriamos decir que se cumple este supuesto de varianza constante.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="DDEDDA_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="prueba-estadística-1" class="level3">
+<h3 class="anchored" data-anchor-id="prueba-estadística-1">Prueba estadística</h3>
+<p>Con el resultado de esta prueba estadística, la cual arroja un valor p igual a 0.1867, valor mayor al nivel de significancia (0.05), podemos confirmar al igual que la gráfica anterior, que el modelo presenta varianza constante, es decir, es homocedastico.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    studentized Breusch-Pagan test
+
+data:  modelo
+BP = 11.273, df = 8, p-value = 0.1867</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="independencia" class="level2">
+<h2 class="anchored" data-anchor-id="independencia">Independencia</h2>
+<section id="gráficos-2" class="level3">
+<h3 class="anchored" data-anchor-id="gráficos-2">Gráficos</h3>
+<p>De acuerdo al gráfico observamos que hay bastante dispersion y que no se sigue ningún patrón en específico, indicando que se cumple el supuesto de independencia.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="DDEDDA_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="prueba-estadística-2" class="level3">
+<h3 class="anchored" data-anchor-id="prueba-estadística-2">Prueba estadística**</h3>
+<p>Esta prueba estadística, con un valor p igual a 0.9779, mayor al nivel de significancia definido, nos confirma que se cumple el supuesto de independencia.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Durbin-Watson test
+
+data:  modelo
+DW = 2.4273, p-value = 0.9779
+alternative hypothesis: true autocorrelation is greater than 0</code></pre>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="comparación-de-tratamientos" class="level1">
+<h1>Comparación de tratamientos</h1>
+<section id="comparación-de-medias-de-tratamientos" class="level2">
+<h2 class="anchored" data-anchor-id="comparación-de-medias-de-tratamientos">Comparación de medias de tratamientos</h2>
+<p>En la primera gráfica se puede observar que el primer tipo de almacenamiento es significativamente diferente del tercer y segundo tipo de almacenamiento. Esto se puede observar también en la prueba LSD.test, ya que se pueden ver cómo los diferentes tratamientos no contienen el número 0 entre sus intervalos.</p>
+<p>Para la segunda gráfica en sus tipos de archivos dos y tres se tiene una igualdad en sus medias, indicando que en sus intervalos se contiene el 0, esto lo podemos ver en la prueba de LSD.test, concluyendo que ambas no tienen una diferencia significativa en sus medias respecto al primer tipo de archivo.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Study: modelo ~ "Almacenamiento"
+
+LSD t Test for Tiempo 
+
+Mean Square Error:  0.4807361 
+
+Almacenamiento,  means and individual ( 95 %) CI
+
+    Tiempo       std  r        se      LCL      UCL  Min   Max   Q25  Q50   Q75
+1 8.531852 2.7629388 27 0.1334355 8.265853 8.797851 3.91 11.86 5.680 9.91 10.63
+2 1.948519 0.5592076 27 0.1334355 1.682520 2.214517 0.96  2.65 1.500 2.10  2.45
+3 4.019259 0.7195401 27 0.1334355 3.753260 4.285258 2.97  6.41 3.565 3.78  4.18
+
+Alpha: 0.05 ; DF Error: 72
+Critical Value of t: 1.993464 
+
+Comparison between treatments means
+
+      difference pvalue signif.       LCL       UCL
+1 - 2   6.583333      0     ***  6.207154  6.959513
+1 - 3   4.512593      0     ***  4.136413  4.888772
+2 - 3  -2.070741      0     *** -2.446920 -1.694562</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Study: modelo ~ "Archivo"
+
+LSD t Test for Tiempo 
+
+Mean Square Error:  0.4807361 
+
+Archivo,  means and individual ( 95 %) CI
+
+    Tiempo      std  r        se      LCL      UCL  Min   Max  Q25  Q50   Q75
+1 3.342593 1.672013 27 0.1334355 3.076594 3.608591 0.96  6.26 1.50 3.72 4.500
+2 5.683333 3.508612 27 0.1334355 5.417334 5.949332 2.10 11.70 2.59 4.04 9.975
+3 5.473704 3.661964 27 0.1334355 5.207705 5.739703 1.74 11.86 2.45 3.70 9.875
+
+Alpha: 0.05 ; DF Error: 72
+Critical Value of t: 1.993464 
+
+Comparison between treatments means
+
+      difference pvalue signif.        LCL        UCL
+1 - 2 -2.3407407 0.0000     *** -2.7169200 -1.9645615
+1 - 3 -2.1311111 0.0000     *** -2.5072903 -1.7549319
+2 - 3  0.2096296 0.2703         -0.1665496  0.5858088</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="DDEDDA_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>En la primer gráfica del almacenamiento, al comparar las diferentes combinaciones de estos factores, vemos que ninguna de estas comparaciones incluye el 0, dando a entender que sus medias son diferentes, esto lo podemos ver estadísticamente en la prueba HSD.test. De igual forma sucede en la gráfica dos, solo que la comparación 3 - 2 se ve que se incluye el 0, por ende se concluye para este único caso que las medias son iguales, resultado comprobado por la prueba de HSD.test.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Study: modelo ~ "Almacenamiento"
+
+HSD Test for Tiempo 
+
+Mean Square Error:  0.4807361 
+
+Almacenamiento,  means
+
+    Tiempo       std  r        se  Min   Max   Q25  Q50   Q75
+1 8.531852 2.7629388 27 0.1334355 3.91 11.86 5.680 9.91 10.63
+2 1.948519 0.5592076 27 0.1334355 0.96  2.65 1.500 2.10  2.45
+3 4.019259 0.7195401 27 0.1334355 2.97  6.41 3.565 3.78  4.18
+
+Alpha: 0.05 ; DF Error: 72 
+Critical Value of Studentized Range: 3.384388 
+
+Comparison between treatments means
+
+      difference pvalue signif.       LCL       UCL
+1 - 2   6.583333      0     ***  6.131736  7.034931
+1 - 3   4.512593      0     ***  4.060995  4.964190
+2 - 3  -2.070741      0     *** -2.522338 -1.619143</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Study: modelo ~ "Archivo"
+
+HSD Test for Tiempo 
+
+Mean Square Error:  0.4807361 
+
+Archivo,  means
+
+    Tiempo      std  r        se  Min   Max  Q25  Q50   Q75
+1 3.342593 1.672013 27 0.1334355 0.96  6.26 1.50 3.72 4.500
+2 5.683333 3.508612 27 0.1334355 2.10 11.70 2.59 4.04 9.975
+3 5.473704 3.661964 27 0.1334355 1.74 11.86 2.45 3.70 9.875
+
+Alpha: 0.05 ; DF Error: 72 
+Critical Value of Studentized Range: 3.384388 
+
+Comparison between treatments means
+
+      difference pvalue signif.       LCL        UCL
+1 - 2 -2.3407407 0.0000     *** -2.792338 -1.8891431
+1 - 3 -2.1311111 0.0000     *** -2.582709 -1.6795135
+2 - 3  0.2096296 0.5105         -0.241968  0.6612273</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="DDEDDA_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="gráfico-de-superficie-y-modelo-de-respuesta" class="level1">
+<h1>Gráfico de superficie y modelo de respuesta</h1>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = Tiempo ~ Almacenamiento * Archivo, data = ZZZ1)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-4.1588 -2.3532  0.6395  1.4931  4.6105 
+
+Coefficients:
+                       Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)              4.8332     0.2620  18.444  &lt; 2e-16 ***
+Almacenamiento          -2.2563     0.3209  -7.030 7.29e-10 ***
+Archivo                  1.0656     0.3209   3.320  0.00138 ** 
+Almacenamiento:Archivo  -1.3692     0.3931  -3.483  0.00082 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 2.358 on 77 degrees of freedom
+Multiple R-squared:  0.4852,    Adjusted R-squared:  0.4652 
+F-statistic: 24.19 on 3 and 77 DF,  p-value: 3.939e-11</code></pre>
+</div>
+</div>
+<p>En los gráficos 2D y 3D respectivamente, podemos observar que la mejor combinación posible para minimizar el tiempo de transferencia sería la (1,1), que reduce el tiempo a 2,27 segundos. Esta conclusión, teniendo en cuenta todos los resultados de las pruebas y los gráficos anteriores, no sería correcta.</p>
+<p>En nuestra base de datos los factores estaban asignados de la siguiente manera: En el tipo de almacenamiento teniamos el 1 como USB, el 2 como Disco Duro, y el 3 como Nube, por ende, en la base de datos codificada se le asigno a la USB el -1, al Disco Duro el 0, y a la Nube el 1. Del mismo modo, se realizó para el factor tipo de archivo. La mejor combinación que nos arrojan la gráfica 2D y 3D para minimizar esos tiempos de transferencia seria la Nube y el archivo tipo TXT, sin embargo, teniendo en cuenta las comparaciones medias de los tratamientos, la mejor combinación que minimiza el tiempo de transferencia sería el almacenamiento en Disco Duro y el tipo de archivo XlSX. Esto en la base codificada sería el intercepto(0, -1)</p>
+<p>Según lo expuesto anteriormente, se puede observar que la mejor combinación para minimizar los tiempos de transferencia de archivos sera la combinación de Disco Duro y archivo Xlsx, por eso exponemos que estas gráficas son erróneas, y no muestran la realidad de los resultados obtenidos.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-57df5c31490d09b75ef4" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-57df5c31490d09b75ef4">{"x":{"visdat":{"4f2c49b6638b":["function () ","plotlyVisDat"]},"cur_data":"4f2c49b6638b","attrs":{"4f2c49b6638b":{"x":[-1,-0.90000000000000002,-0.80000000000000004,-0.69999999999999996,-0.59999999999999998,-0.5,-0.39999999999999991,-0.29999999999999993,-0.19999999999999996,-0.099999999999999978,0,0.10000000000000009,0.20000000000000018,0.30000000000000004,0.40000000000000013,0.5,0.60000000000000009,0.70000000000000018,0.80000000000000004,0.90000000000000013,1],"y":[-1,-0.90000000000000002,-0.80000000000000004,-0.69999999999999996,-0.59999999999999998,-0.5,-0.39999999999999991,-0.29999999999999993,-0.19999999999999996,-0.099999999999999978,0,0.10000000000000009,0.20000000000000018,0.30000000000000004,0.40000000000000013,0.5,0.60000000000000009,0.70000000000000018,0.80000000000000004,0.90000000000000013,1],"z":[[4.6546999999999992,4.8981799999999991,5.141659999999999,5.3851399999999998,5.6286199999999997,5.8720999999999997,6.1155799999999996,6.3590599999999995,6.6025399999999994,6.8460199999999993,7.0894999999999992,7.3329799999999992,7.5764599999999991,7.819939999999999,8.0634199999999989,8.3068999999999988,8.5503799999999988,8.7938599999999987,9.0373399999999986,9.2808199999999985,9.5242999999999984],[4.5659900000000002,4.7957780000000003,5.0255660000000004,5.2553540000000005,5.4851420000000006,5.7149300000000007,5.9447180000000008,6.174506,6.4042940000000002,6.6340820000000003,6.8638700000000004,7.0936580000000005,7.3234460000000006,7.5532340000000007,7.7830220000000008,8.01281,8.242598000000001,8.4723860000000002,8.7021739999999994,8.9319620000000004,9.1617499999999996],[4.4772799999999995,4.6933759999999998,4.9094719999999992,5.1255679999999995,5.3416639999999997,5.55776,5.7738559999999994,5.9899519999999997,6.206048,6.4221439999999994,6.6382399999999997,6.854336,7.0704320000000003,7.2865279999999997,7.502624,7.7187199999999994,7.9348159999999996,8.1509119999999999,8.3670080000000002,8.5831040000000005,8.799199999999999],[4.3885699999999996,4.5909740000000001,4.7933779999999997,4.9957820000000002,5.1981859999999998,5.4005900000000002,5.6029939999999998,5.8053980000000003,6.0078019999999999,6.2102060000000003,6.4126099999999999,6.6150140000000004,6.817418,7.0198219999999996,7.222226,7.4246299999999996,7.6270340000000001,7.8294379999999997,8.0318419999999993,8.2342460000000006,8.4366500000000002],[4.2998600000000007,4.4885720000000005,4.6772840000000002,4.865996,5.0547080000000006,5.2434200000000004,5.4321320000000002,5.620844,5.8095560000000006,5.9982680000000004,6.1869800000000001,6.3756919999999999,6.5644040000000006,6.7531160000000003,6.9418280000000001,7.1305399999999999,7.3192520000000005,7.5079640000000003,7.6966760000000001,7.8853879999999998,8.0740999999999996],[4.2111499999999999,4.3861699999999999,4.5611899999999999,4.7362099999999998,4.9112299999999998,5.0862499999999997,5.2612699999999997,5.4362899999999996,5.6113099999999996,5.7863299999999995,5.9613499999999995,6.1363699999999994,6.3113899999999994,6.4864099999999993,6.6614299999999993,6.8364499999999992,7.0114699999999992,7.1864899999999992,7.3615099999999991,7.5365299999999991,7.711549999999999],[4.1224400000000001,4.2837680000000002,4.4450959999999995,4.6064239999999996,4.7677519999999998,4.9290799999999999,5.090408,5.2517360000000002,5.4130639999999994,5.5743919999999996,5.7357199999999997,5.8970479999999998,6.058376,6.2197039999999992,6.3810319999999994,6.5423599999999995,6.7036879999999996,6.8650159999999998,7.0263439999999999,7.1876719999999992,7.3489999999999993],[4.0337300000000003,4.1813660000000006,4.329002,4.4766380000000003,4.6242739999999998,4.7719100000000001,4.9195460000000004,5.0671819999999999,5.2148180000000002,5.3624539999999996,5.5100899999999999,5.6577260000000003,5.8053619999999997,5.952998,6.1006339999999994,6.2482699999999998,6.3959060000000001,6.5435419999999995,6.6911779999999998,6.8388140000000002,6.9864499999999996],[3.9450199999999995,4.0789639999999991,4.2129079999999997,4.3468519999999993,4.4807959999999998,4.6147399999999994,4.748683999999999,4.8826279999999995,5.0165719999999991,5.1505159999999997,5.2844599999999993,5.4184039999999989,5.5523479999999994,5.686291999999999,5.8202359999999995,5.9541799999999991,6.0881239999999988,6.2220679999999993,6.3560119999999989,6.4899559999999994,6.623899999999999],[3.8563099999999997,3.9765619999999995,4.0968139999999993,4.217066,4.3373179999999998,4.4575699999999996,4.5778219999999994,4.6980739999999992,4.8183259999999999,4.9385779999999997,5.0588299999999995,5.1790819999999993,5.2993339999999991,5.4195859999999998,5.5398379999999996,5.6600899999999994,5.7803419999999992,5.900593999999999,6.0208459999999997,6.1410979999999995,6.2613499999999993],[3.7675999999999998,3.8741599999999998,3.9807199999999998,4.0872799999999998,4.1938399999999998,4.3003999999999998,4.4069599999999998,4.5135199999999998,4.6200799999999997,4.7266399999999997,4.8331999999999997,4.9397599999999997,5.0463199999999997,5.1528799999999997,5.2594399999999997,5.3659999999999997,5.4725599999999996,5.5791199999999996,5.6856799999999996,5.7922399999999996,5.8987999999999996],[3.67889,3.7717580000000002,3.8646260000000003,3.9574940000000001,4.0503619999999998,4.14323,4.2360980000000001,4.3289660000000003,4.4218339999999996,4.5147019999999998,4.6075699999999999,4.7004380000000001,4.7933060000000003,4.8861739999999996,4.9790419999999997,5.0719099999999999,5.1647780000000001,5.2576459999999994,5.3505139999999995,5.4433819999999997,5.5362499999999999],[3.5901799999999997,3.6693559999999996,3.7485319999999995,3.8277079999999994,3.9068839999999994,3.9860599999999993,4.0652359999999996,4.1444119999999991,4.2235879999999995,4.3027639999999989,4.3819399999999993,4.4611159999999996,4.5402919999999991,4.6194679999999995,4.6986439999999989,4.7778199999999993,4.8569959999999988,4.9361719999999991,5.0153479999999986,5.0945239999999989,5.1736999999999993],[3.5014699999999999,3.5669539999999995,3.6324379999999996,3.6979219999999997,3.7634059999999998,3.8288899999999995,3.8943739999999996,3.9598579999999997,4.0253419999999993,4.0908259999999999,4.1563099999999995,4.2217939999999992,4.2872779999999997,4.3527619999999994,4.418245999999999,4.4837299999999995,4.5492139999999992,4.6146979999999989,4.6801819999999994,4.7456659999999991,4.8111499999999996],[3.4127599999999991,3.464551999999999,3.5163439999999992,3.5681359999999995,3.6199279999999994,3.6717199999999997,3.7235119999999995,3.7753039999999993,3.8270959999999992,3.8788879999999994,3.9306799999999993,3.9824719999999996,4.0342639999999994,4.0860559999999992,4.137848,4.1896399999999998,4.2414319999999996,4.2932239999999995,4.3450159999999993,4.3968079999999992,4.448599999999999],[3.3240500000000002,3.3621500000000002,3.4002500000000002,3.4383499999999998,3.4764499999999998,3.5145499999999998,3.5526499999999999,3.5907499999999999,3.6288499999999999,3.6669499999999999,3.70505,3.74315,3.78125,3.81935,3.85745,3.8955500000000001,3.9336499999999996,3.9717499999999997,4.0098500000000001,4.0479500000000002,4.0860500000000002],[3.2353399999999994,3.2597479999999996,3.2841559999999994,3.3085639999999996,3.3329719999999994,3.3573799999999996,3.3817879999999994,3.4061959999999991,3.4306039999999993,3.4550119999999991,3.4794199999999993,3.5038279999999991,3.5282359999999993,3.552643999999999,3.5770519999999992,3.601459999999999,3.6258679999999992,3.650275999999999,3.6746839999999992,3.6990919999999989,3.7234999999999991],[3.14663,3.1573459999999995,3.1680619999999999,3.1787779999999994,3.1894939999999998,3.2002099999999998,3.2109259999999997,3.2216419999999997,3.2323579999999996,3.2430739999999996,3.2537899999999995,3.2645059999999995,3.2752219999999994,3.2859379999999994,3.2966539999999993,3.3073699999999993,3.3180859999999992,3.3288019999999996,3.3395179999999991,3.350233999999999,3.360949999999999],[3.0579199999999997,3.0549439999999999,3.051968,3.0489919999999997,3.0460159999999998,3.04304,3.0400639999999997,3.0370879999999998,3.0341119999999999,3.0311359999999996,3.0281599999999997,3.0251839999999994,3.0222079999999996,3.0192319999999997,3.0162559999999994,3.0132799999999995,3.0103039999999996,3.0073279999999998,3.0043519999999995,3.0013759999999996,2.9983999999999993],[2.9692099999999995,2.9525419999999998,2.9358739999999997,2.919206,2.9025379999999998,2.8858699999999997,2.8692019999999996,2.8525339999999995,2.8358659999999993,2.8191979999999996,2.8025299999999995,2.7858619999999994,2.7691939999999997,2.7525259999999996,2.7358579999999995,2.7191899999999993,2.7025219999999996,2.6858539999999995,2.6691859999999998,2.6525179999999997,2.6358499999999996],[2.8804999999999996,2.8501399999999997,2.8197799999999997,2.7894199999999998,2.7590599999999998,2.7286999999999999,2.6983399999999995,2.6679799999999996,2.6376199999999996,2.6072599999999997,2.5768999999999997,2.5465399999999998,2.5161799999999999,2.4858199999999995,2.45546,2.4250999999999996,2.3947400000000001,2.3643799999999997,2.3340199999999998,2.3036599999999998,2.2732999999999999]],"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"surface","inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"scene":{"xaxis":{"title":[]},"yaxis":{"title":[]},"zaxis":{"title":[]}},"hovermode":"closest","showlegend":false,"legend":{"yanchor":"top","y":0.5}},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"colorbar":{"title":"","ticklen":2,"len":0.5,"lenmode":"fraction","y":1,"yanchor":"top"},"colorscale":[["0","rgba(68,1,84,1)"],["0.0416666666666666","rgba(70,19,97,1)"],["0.0833333333333333","rgba(72,32,111,1)"],["0.125","rgba(71,45,122,1)"],["0.166666666666667","rgba(68,58,128,1)"],["0.208333333333333","rgba(64,70,135,1)"],["0.25","rgba(60,82,138,1)"],["0.291666666666667","rgba(56,93,140,1)"],["0.333333333333333","rgba(49,104,142,1)"],["0.375","rgba(46,114,142,1)"],["0.416666666666667","rgba(42,123,142,1)"],["0.458333333333333","rgba(38,133,141,1)"],["0.5","rgba(37,144,140,1)"],["0.541666666666667","rgba(33,154,138,1)"],["0.583333333333333","rgba(39,164,133,1)"],["0.625","rgba(47,174,127,1)"],["0.666666666666667","rgba(53,183,121,1)"],["0.708333333333333","rgba(79,191,110,1)"],["0.75","rgba(98,199,98,1)"],["0.791666666666667","rgba(119,207,85,1)"],["0.833333333333333","rgba(147,214,70,1)"],["0.875","rgba(172,220,52,1)"],["0.916666666666667","rgba(199,225,42,1)"],["0.958333333333333","rgba(226,228,40,1)"],["1","rgba(253,231,37,1)"]],"showscale":true,"x":[-1,-0.90000000000000002,-0.80000000000000004,-0.69999999999999996,-0.59999999999999998,-0.5,-0.39999999999999991,-0.29999999999999993,-0.19999999999999996,-0.099999999999999978,0,0.10000000000000009,0.20000000000000018,0.30000000000000004,0.40000000000000013,0.5,0.60000000000000009,0.70000000000000018,0.80000000000000004,0.90000000000000013,1],"y":[-1,-0.90000000000000002,-0.80000000000000004,-0.69999999999999996,-0.59999999999999998,-0.5,-0.39999999999999991,-0.29999999999999993,-0.19999999999999996,-0.099999999999999978,0,0.10000000000000009,0.20000000000000018,0.30000000000000004,0.40000000000000013,0.5,0.60000000000000009,0.70000000000000018,0.80000000000000004,0.90000000000000013,1],"z":[[4.6546999999999992,4.8981799999999991,5.141659999999999,5.3851399999999998,5.6286199999999997,5.8720999999999997,6.1155799999999996,6.3590599999999995,6.6025399999999994,6.8460199999999993,7.0894999999999992,7.3329799999999992,7.5764599999999991,7.819939999999999,8.0634199999999989,8.3068999999999988,8.5503799999999988,8.7938599999999987,9.0373399999999986,9.2808199999999985,9.5242999999999984],[4.5659900000000002,4.7957780000000003,5.0255660000000004,5.2553540000000005,5.4851420000000006,5.7149300000000007,5.9447180000000008,6.174506,6.4042940000000002,6.6340820000000003,6.8638700000000004,7.0936580000000005,7.3234460000000006,7.5532340000000007,7.7830220000000008,8.01281,8.242598000000001,8.4723860000000002,8.7021739999999994,8.9319620000000004,9.1617499999999996],[4.4772799999999995,4.6933759999999998,4.9094719999999992,5.1255679999999995,5.3416639999999997,5.55776,5.7738559999999994,5.9899519999999997,6.206048,6.4221439999999994,6.6382399999999997,6.854336,7.0704320000000003,7.2865279999999997,7.502624,7.7187199999999994,7.9348159999999996,8.1509119999999999,8.3670080000000002,8.5831040000000005,8.799199999999999],[4.3885699999999996,4.5909740000000001,4.7933779999999997,4.9957820000000002,5.1981859999999998,5.4005900000000002,5.6029939999999998,5.8053980000000003,6.0078019999999999,6.2102060000000003,6.4126099999999999,6.6150140000000004,6.817418,7.0198219999999996,7.222226,7.4246299999999996,7.6270340000000001,7.8294379999999997,8.0318419999999993,8.2342460000000006,8.4366500000000002],[4.2998600000000007,4.4885720000000005,4.6772840000000002,4.865996,5.0547080000000006,5.2434200000000004,5.4321320000000002,5.620844,5.8095560000000006,5.9982680000000004,6.1869800000000001,6.3756919999999999,6.5644040000000006,6.7531160000000003,6.9418280000000001,7.1305399999999999,7.3192520000000005,7.5079640000000003,7.6966760000000001,7.8853879999999998,8.0740999999999996],[4.2111499999999999,4.3861699999999999,4.5611899999999999,4.7362099999999998,4.9112299999999998,5.0862499999999997,5.2612699999999997,5.4362899999999996,5.6113099999999996,5.7863299999999995,5.9613499999999995,6.1363699999999994,6.3113899999999994,6.4864099999999993,6.6614299999999993,6.8364499999999992,7.0114699999999992,7.1864899999999992,7.3615099999999991,7.5365299999999991,7.711549999999999],[4.1224400000000001,4.2837680000000002,4.4450959999999995,4.6064239999999996,4.7677519999999998,4.9290799999999999,5.090408,5.2517360000000002,5.4130639999999994,5.5743919999999996,5.7357199999999997,5.8970479999999998,6.058376,6.2197039999999992,6.3810319999999994,6.5423599999999995,6.7036879999999996,6.8650159999999998,7.0263439999999999,7.1876719999999992,7.3489999999999993],[4.0337300000000003,4.1813660000000006,4.329002,4.4766380000000003,4.6242739999999998,4.7719100000000001,4.9195460000000004,5.0671819999999999,5.2148180000000002,5.3624539999999996,5.5100899999999999,5.6577260000000003,5.8053619999999997,5.952998,6.1006339999999994,6.2482699999999998,6.3959060000000001,6.5435419999999995,6.6911779999999998,6.8388140000000002,6.9864499999999996],[3.9450199999999995,4.0789639999999991,4.2129079999999997,4.3468519999999993,4.4807959999999998,4.6147399999999994,4.748683999999999,4.8826279999999995,5.0165719999999991,5.1505159999999997,5.2844599999999993,5.4184039999999989,5.5523479999999994,5.686291999999999,5.8202359999999995,5.9541799999999991,6.0881239999999988,6.2220679999999993,6.3560119999999989,6.4899559999999994,6.623899999999999],[3.8563099999999997,3.9765619999999995,4.0968139999999993,4.217066,4.3373179999999998,4.4575699999999996,4.5778219999999994,4.6980739999999992,4.8183259999999999,4.9385779999999997,5.0588299999999995,5.1790819999999993,5.2993339999999991,5.4195859999999998,5.5398379999999996,5.6600899999999994,5.7803419999999992,5.900593999999999,6.0208459999999997,6.1410979999999995,6.2613499999999993],[3.7675999999999998,3.8741599999999998,3.9807199999999998,4.0872799999999998,4.1938399999999998,4.3003999999999998,4.4069599999999998,4.5135199999999998,4.6200799999999997,4.7266399999999997,4.8331999999999997,4.9397599999999997,5.0463199999999997,5.1528799999999997,5.2594399999999997,5.3659999999999997,5.4725599999999996,5.5791199999999996,5.6856799999999996,5.7922399999999996,5.8987999999999996],[3.67889,3.7717580000000002,3.8646260000000003,3.9574940000000001,4.0503619999999998,4.14323,4.2360980000000001,4.3289660000000003,4.4218339999999996,4.5147019999999998,4.6075699999999999,4.7004380000000001,4.7933060000000003,4.8861739999999996,4.9790419999999997,5.0719099999999999,5.1647780000000001,5.2576459999999994,5.3505139999999995,5.4433819999999997,5.5362499999999999],[3.5901799999999997,3.6693559999999996,3.7485319999999995,3.8277079999999994,3.9068839999999994,3.9860599999999993,4.0652359999999996,4.1444119999999991,4.2235879999999995,4.3027639999999989,4.3819399999999993,4.4611159999999996,4.5402919999999991,4.6194679999999995,4.6986439999999989,4.7778199999999993,4.8569959999999988,4.9361719999999991,5.0153479999999986,5.0945239999999989,5.1736999999999993],[3.5014699999999999,3.5669539999999995,3.6324379999999996,3.6979219999999997,3.7634059999999998,3.8288899999999995,3.8943739999999996,3.9598579999999997,4.0253419999999993,4.0908259999999999,4.1563099999999995,4.2217939999999992,4.2872779999999997,4.3527619999999994,4.418245999999999,4.4837299999999995,4.5492139999999992,4.6146979999999989,4.6801819999999994,4.7456659999999991,4.8111499999999996],[3.4127599999999991,3.464551999999999,3.5163439999999992,3.5681359999999995,3.6199279999999994,3.6717199999999997,3.7235119999999995,3.7753039999999993,3.8270959999999992,3.8788879999999994,3.9306799999999993,3.9824719999999996,4.0342639999999994,4.0860559999999992,4.137848,4.1896399999999998,4.2414319999999996,4.2932239999999995,4.3450159999999993,4.3968079999999992,4.448599999999999],[3.3240500000000002,3.3621500000000002,3.4002500000000002,3.4383499999999998,3.4764499999999998,3.5145499999999998,3.5526499999999999,3.5907499999999999,3.6288499999999999,3.6669499999999999,3.70505,3.74315,3.78125,3.81935,3.85745,3.8955500000000001,3.9336499999999996,3.9717499999999997,4.0098500000000001,4.0479500000000002,4.0860500000000002],[3.2353399999999994,3.2597479999999996,3.2841559999999994,3.3085639999999996,3.3329719999999994,3.3573799999999996,3.3817879999999994,3.4061959999999991,3.4306039999999993,3.4550119999999991,3.4794199999999993,3.5038279999999991,3.5282359999999993,3.552643999999999,3.5770519999999992,3.601459999999999,3.6258679999999992,3.650275999999999,3.6746839999999992,3.6990919999999989,3.7234999999999991],[3.14663,3.1573459999999995,3.1680619999999999,3.1787779999999994,3.1894939999999998,3.2002099999999998,3.2109259999999997,3.2216419999999997,3.2323579999999996,3.2430739999999996,3.2537899999999995,3.2645059999999995,3.2752219999999994,3.2859379999999994,3.2966539999999993,3.3073699999999993,3.3180859999999992,3.3288019999999996,3.3395179999999991,3.350233999999999,3.360949999999999],[3.0579199999999997,3.0549439999999999,3.051968,3.0489919999999997,3.0460159999999998,3.04304,3.0400639999999997,3.0370879999999998,3.0341119999999999,3.0311359999999996,3.0281599999999997,3.0251839999999994,3.0222079999999996,3.0192319999999997,3.0162559999999994,3.0132799999999995,3.0103039999999996,3.0073279999999998,3.0043519999999995,3.0013759999999996,2.9983999999999993],[2.9692099999999995,2.9525419999999998,2.9358739999999997,2.919206,2.9025379999999998,2.8858699999999997,2.8692019999999996,2.8525339999999995,2.8358659999999993,2.8191979999999996,2.8025299999999995,2.7858619999999994,2.7691939999999997,2.7525259999999996,2.7358579999999995,2.7191899999999993,2.7025219999999996,2.6858539999999995,2.6691859999999998,2.6525179999999997,2.6358499999999996],[2.8804999999999996,2.8501399999999997,2.8197799999999997,2.7894199999999998,2.7590599999999998,2.7286999999999999,2.6983399999999995,2.6679799999999996,2.6376199999999996,2.6072599999999997,2.5768999999999997,2.5465399999999998,2.5161799999999999,2.4858199999999995,2.45546,2.4250999999999996,2.3947400000000001,2.3643799999999997,2.3340199999999998,2.3036599999999998,2.2732999999999999]],"type":"surface","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-a22c3b75b0abd14636f0" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-a22c3b75b0abd14636f0">{"x":{"visdat":{"4f2c7ecf6b2a":["function () ","plotlyVisDat"]},"cur_data":"4f2c7ecf6b2a","attrs":{"4f2c7ecf6b2a":{"x":[-1,-0.90000000000000002,-0.80000000000000004,-0.69999999999999996,-0.59999999999999998,-0.5,-0.39999999999999991,-0.29999999999999993,-0.19999999999999996,-0.099999999999999978,0,0.10000000000000009,0.20000000000000018,0.30000000000000004,0.40000000000000013,0.5,0.60000000000000009,0.70000000000000018,0.80000000000000004,0.90000000000000013,1],"y":[-1,-0.90000000000000002,-0.80000000000000004,-0.69999999999999996,-0.59999999999999998,-0.5,-0.39999999999999991,-0.29999999999999993,-0.19999999999999996,-0.099999999999999978,0,0.10000000000000009,0.20000000000000018,0.30000000000000004,0.40000000000000013,0.5,0.60000000000000009,0.70000000000000018,0.80000000000000004,0.90000000000000013,1],"z":[[4.6546999999999992,4.8981799999999991,5.141659999999999,5.3851399999999998,5.6286199999999997,5.8720999999999997,6.1155799999999996,6.3590599999999995,6.6025399999999994,6.8460199999999993,7.0894999999999992,7.3329799999999992,7.5764599999999991,7.819939999999999,8.0634199999999989,8.3068999999999988,8.5503799999999988,8.7938599999999987,9.0373399999999986,9.2808199999999985,9.5242999999999984],[4.5659900000000002,4.7957780000000003,5.0255660000000004,5.2553540000000005,5.4851420000000006,5.7149300000000007,5.9447180000000008,6.174506,6.4042940000000002,6.6340820000000003,6.8638700000000004,7.0936580000000005,7.3234460000000006,7.5532340000000007,7.7830220000000008,8.01281,8.242598000000001,8.4723860000000002,8.7021739999999994,8.9319620000000004,9.1617499999999996],[4.4772799999999995,4.6933759999999998,4.9094719999999992,5.1255679999999995,5.3416639999999997,5.55776,5.7738559999999994,5.9899519999999997,6.206048,6.4221439999999994,6.6382399999999997,6.854336,7.0704320000000003,7.2865279999999997,7.502624,7.7187199999999994,7.9348159999999996,8.1509119999999999,8.3670080000000002,8.5831040000000005,8.799199999999999],[4.3885699999999996,4.5909740000000001,4.7933779999999997,4.9957820000000002,5.1981859999999998,5.4005900000000002,5.6029939999999998,5.8053980000000003,6.0078019999999999,6.2102060000000003,6.4126099999999999,6.6150140000000004,6.817418,7.0198219999999996,7.222226,7.4246299999999996,7.6270340000000001,7.8294379999999997,8.0318419999999993,8.2342460000000006,8.4366500000000002],[4.2998600000000007,4.4885720000000005,4.6772840000000002,4.865996,5.0547080000000006,5.2434200000000004,5.4321320000000002,5.620844,5.8095560000000006,5.9982680000000004,6.1869800000000001,6.3756919999999999,6.5644040000000006,6.7531160000000003,6.9418280000000001,7.1305399999999999,7.3192520000000005,7.5079640000000003,7.6966760000000001,7.8853879999999998,8.0740999999999996],[4.2111499999999999,4.3861699999999999,4.5611899999999999,4.7362099999999998,4.9112299999999998,5.0862499999999997,5.2612699999999997,5.4362899999999996,5.6113099999999996,5.7863299999999995,5.9613499999999995,6.1363699999999994,6.3113899999999994,6.4864099999999993,6.6614299999999993,6.8364499999999992,7.0114699999999992,7.1864899999999992,7.3615099999999991,7.5365299999999991,7.711549999999999],[4.1224400000000001,4.2837680000000002,4.4450959999999995,4.6064239999999996,4.7677519999999998,4.9290799999999999,5.090408,5.2517360000000002,5.4130639999999994,5.5743919999999996,5.7357199999999997,5.8970479999999998,6.058376,6.2197039999999992,6.3810319999999994,6.5423599999999995,6.7036879999999996,6.8650159999999998,7.0263439999999999,7.1876719999999992,7.3489999999999993],[4.0337300000000003,4.1813660000000006,4.329002,4.4766380000000003,4.6242739999999998,4.7719100000000001,4.9195460000000004,5.0671819999999999,5.2148180000000002,5.3624539999999996,5.5100899999999999,5.6577260000000003,5.8053619999999997,5.952998,6.1006339999999994,6.2482699999999998,6.3959060000000001,6.5435419999999995,6.6911779999999998,6.8388140000000002,6.9864499999999996],[3.9450199999999995,4.0789639999999991,4.2129079999999997,4.3468519999999993,4.4807959999999998,4.6147399999999994,4.748683999999999,4.8826279999999995,5.0165719999999991,5.1505159999999997,5.2844599999999993,5.4184039999999989,5.5523479999999994,5.686291999999999,5.8202359999999995,5.9541799999999991,6.0881239999999988,6.2220679999999993,6.3560119999999989,6.4899559999999994,6.623899999999999],[3.8563099999999997,3.9765619999999995,4.0968139999999993,4.217066,4.3373179999999998,4.4575699999999996,4.5778219999999994,4.6980739999999992,4.8183259999999999,4.9385779999999997,5.0588299999999995,5.1790819999999993,5.2993339999999991,5.4195859999999998,5.5398379999999996,5.6600899999999994,5.7803419999999992,5.900593999999999,6.0208459999999997,6.1410979999999995,6.2613499999999993],[3.7675999999999998,3.8741599999999998,3.9807199999999998,4.0872799999999998,4.1938399999999998,4.3003999999999998,4.4069599999999998,4.5135199999999998,4.6200799999999997,4.7266399999999997,4.8331999999999997,4.9397599999999997,5.0463199999999997,5.1528799999999997,5.2594399999999997,5.3659999999999997,5.4725599999999996,5.5791199999999996,5.6856799999999996,5.7922399999999996,5.8987999999999996],[3.67889,3.7717580000000002,3.8646260000000003,3.9574940000000001,4.0503619999999998,4.14323,4.2360980000000001,4.3289660000000003,4.4218339999999996,4.5147019999999998,4.6075699999999999,4.7004380000000001,4.7933060000000003,4.8861739999999996,4.9790419999999997,5.0719099999999999,5.1647780000000001,5.2576459999999994,5.3505139999999995,5.4433819999999997,5.5362499999999999],[3.5901799999999997,3.6693559999999996,3.7485319999999995,3.8277079999999994,3.9068839999999994,3.9860599999999993,4.0652359999999996,4.1444119999999991,4.2235879999999995,4.3027639999999989,4.3819399999999993,4.4611159999999996,4.5402919999999991,4.6194679999999995,4.6986439999999989,4.7778199999999993,4.8569959999999988,4.9361719999999991,5.0153479999999986,5.0945239999999989,5.1736999999999993],[3.5014699999999999,3.5669539999999995,3.6324379999999996,3.6979219999999997,3.7634059999999998,3.8288899999999995,3.8943739999999996,3.9598579999999997,4.0253419999999993,4.0908259999999999,4.1563099999999995,4.2217939999999992,4.2872779999999997,4.3527619999999994,4.418245999999999,4.4837299999999995,4.5492139999999992,4.6146979999999989,4.6801819999999994,4.7456659999999991,4.8111499999999996],[3.4127599999999991,3.464551999999999,3.5163439999999992,3.5681359999999995,3.6199279999999994,3.6717199999999997,3.7235119999999995,3.7753039999999993,3.8270959999999992,3.8788879999999994,3.9306799999999993,3.9824719999999996,4.0342639999999994,4.0860559999999992,4.137848,4.1896399999999998,4.2414319999999996,4.2932239999999995,4.3450159999999993,4.3968079999999992,4.448599999999999],[3.3240500000000002,3.3621500000000002,3.4002500000000002,3.4383499999999998,3.4764499999999998,3.5145499999999998,3.5526499999999999,3.5907499999999999,3.6288499999999999,3.6669499999999999,3.70505,3.74315,3.78125,3.81935,3.85745,3.8955500000000001,3.9336499999999996,3.9717499999999997,4.0098500000000001,4.0479500000000002,4.0860500000000002],[3.2353399999999994,3.2597479999999996,3.2841559999999994,3.3085639999999996,3.3329719999999994,3.3573799999999996,3.3817879999999994,3.4061959999999991,3.4306039999999993,3.4550119999999991,3.4794199999999993,3.5038279999999991,3.5282359999999993,3.552643999999999,3.5770519999999992,3.601459999999999,3.6258679999999992,3.650275999999999,3.6746839999999992,3.6990919999999989,3.7234999999999991],[3.14663,3.1573459999999995,3.1680619999999999,3.1787779999999994,3.1894939999999998,3.2002099999999998,3.2109259999999997,3.2216419999999997,3.2323579999999996,3.2430739999999996,3.2537899999999995,3.2645059999999995,3.2752219999999994,3.2859379999999994,3.2966539999999993,3.3073699999999993,3.3180859999999992,3.3288019999999996,3.3395179999999991,3.350233999999999,3.360949999999999],[3.0579199999999997,3.0549439999999999,3.051968,3.0489919999999997,3.0460159999999998,3.04304,3.0400639999999997,3.0370879999999998,3.0341119999999999,3.0311359999999996,3.0281599999999997,3.0251839999999994,3.0222079999999996,3.0192319999999997,3.0162559999999994,3.0132799999999995,3.0103039999999996,3.0073279999999998,3.0043519999999995,3.0013759999999996,2.9983999999999993],[2.9692099999999995,2.9525419999999998,2.9358739999999997,2.919206,2.9025379999999998,2.8858699999999997,2.8692019999999996,2.8525339999999995,2.8358659999999993,2.8191979999999996,2.8025299999999995,2.7858619999999994,2.7691939999999997,2.7525259999999996,2.7358579999999995,2.7191899999999993,2.7025219999999996,2.6858539999999995,2.6691859999999998,2.6525179999999997,2.6358499999999996],[2.8804999999999996,2.8501399999999997,2.8197799999999997,2.7894199999999998,2.7590599999999998,2.7286999999999999,2.6983399999999995,2.6679799999999996,2.6376199999999996,2.6072599999999997,2.5768999999999997,2.5465399999999998,2.5161799999999999,2.4858199999999995,2.45546,2.4250999999999996,2.3947400000000001,2.3643799999999997,2.3340199999999998,2.3036599999999998,2.2732999999999999]],"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"surface","contours":{"z":{"show":true,"usecolormap":true,"highlightcolor":"#ff0000","project":{"z":true}}},"inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"scene":{"camera":{"eye":{"x":1.8700000000000001,"y":0.88,"z":-0.64000000000000001}},"xaxis":{"title":[]},"yaxis":{"title":[]},"zaxis":{"title":[]}},"hovermode":"closest","showlegend":false,"legend":{"yanchor":"top","y":0.5}},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"colorbar":{"title":"","ticklen":2,"len":0.5,"lenmode":"fraction","y":1,"yanchor":"top"},"colorscale":[["0","rgba(68,1,84,1)"],["0.0416666666666666","rgba(70,19,97,1)"],["0.0833333333333333","rgba(72,32,111,1)"],["0.125","rgba(71,45,122,1)"],["0.166666666666667","rgba(68,58,128,1)"],["0.208333333333333","rgba(64,70,135,1)"],["0.25","rgba(60,82,138,1)"],["0.291666666666667","rgba(56,93,140,1)"],["0.333333333333333","rgba(49,104,142,1)"],["0.375","rgba(46,114,142,1)"],["0.416666666666667","rgba(42,123,142,1)"],["0.458333333333333","rgba(38,133,141,1)"],["0.5","rgba(37,144,140,1)"],["0.541666666666667","rgba(33,154,138,1)"],["0.583333333333333","rgba(39,164,133,1)"],["0.625","rgba(47,174,127,1)"],["0.666666666666667","rgba(53,183,121,1)"],["0.708333333333333","rgba(79,191,110,1)"],["0.75","rgba(98,199,98,1)"],["0.791666666666667","rgba(119,207,85,1)"],["0.833333333333333","rgba(147,214,70,1)"],["0.875","rgba(172,220,52,1)"],["0.916666666666667","rgba(199,225,42,1)"],["0.958333333333333","rgba(226,228,40,1)"],["1","rgba(253,231,37,1)"]],"showscale":true,"x":[-1,-0.90000000000000002,-0.80000000000000004,-0.69999999999999996,-0.59999999999999998,-0.5,-0.39999999999999991,-0.29999999999999993,-0.19999999999999996,-0.099999999999999978,0,0.10000000000000009,0.20000000000000018,0.30000000000000004,0.40000000000000013,0.5,0.60000000000000009,0.70000000000000018,0.80000000000000004,0.90000000000000013,1],"y":[-1,-0.90000000000000002,-0.80000000000000004,-0.69999999999999996,-0.59999999999999998,-0.5,-0.39999999999999991,-0.29999999999999993,-0.19999999999999996,-0.099999999999999978,0,0.10000000000000009,0.20000000000000018,0.30000000000000004,0.40000000000000013,0.5,0.60000000000000009,0.70000000000000018,0.80000000000000004,0.90000000000000013,1],"z":[[4.6546999999999992,4.8981799999999991,5.141659999999999,5.3851399999999998,5.6286199999999997,5.8720999999999997,6.1155799999999996,6.3590599999999995,6.6025399999999994,6.8460199999999993,7.0894999999999992,7.3329799999999992,7.5764599999999991,7.819939999999999,8.0634199999999989,8.3068999999999988,8.5503799999999988,8.7938599999999987,9.0373399999999986,9.2808199999999985,9.5242999999999984],[4.5659900000000002,4.7957780000000003,5.0255660000000004,5.2553540000000005,5.4851420000000006,5.7149300000000007,5.9447180000000008,6.174506,6.4042940000000002,6.6340820000000003,6.8638700000000004,7.0936580000000005,7.3234460000000006,7.5532340000000007,7.7830220000000008,8.01281,8.242598000000001,8.4723860000000002,8.7021739999999994,8.9319620000000004,9.1617499999999996],[4.4772799999999995,4.6933759999999998,4.9094719999999992,5.1255679999999995,5.3416639999999997,5.55776,5.7738559999999994,5.9899519999999997,6.206048,6.4221439999999994,6.6382399999999997,6.854336,7.0704320000000003,7.2865279999999997,7.502624,7.7187199999999994,7.9348159999999996,8.1509119999999999,8.3670080000000002,8.5831040000000005,8.799199999999999],[4.3885699999999996,4.5909740000000001,4.7933779999999997,4.9957820000000002,5.1981859999999998,5.4005900000000002,5.6029939999999998,5.8053980000000003,6.0078019999999999,6.2102060000000003,6.4126099999999999,6.6150140000000004,6.817418,7.0198219999999996,7.222226,7.4246299999999996,7.6270340000000001,7.8294379999999997,8.0318419999999993,8.2342460000000006,8.4366500000000002],[4.2998600000000007,4.4885720000000005,4.6772840000000002,4.865996,5.0547080000000006,5.2434200000000004,5.4321320000000002,5.620844,5.8095560000000006,5.9982680000000004,6.1869800000000001,6.3756919999999999,6.5644040000000006,6.7531160000000003,6.9418280000000001,7.1305399999999999,7.3192520000000005,7.5079640000000003,7.6966760000000001,7.8853879999999998,8.0740999999999996],[4.2111499999999999,4.3861699999999999,4.5611899999999999,4.7362099999999998,4.9112299999999998,5.0862499999999997,5.2612699999999997,5.4362899999999996,5.6113099999999996,5.7863299999999995,5.9613499999999995,6.1363699999999994,6.3113899999999994,6.4864099999999993,6.6614299999999993,6.8364499999999992,7.0114699999999992,7.1864899999999992,7.3615099999999991,7.5365299999999991,7.711549999999999],[4.1224400000000001,4.2837680000000002,4.4450959999999995,4.6064239999999996,4.7677519999999998,4.9290799999999999,5.090408,5.2517360000000002,5.4130639999999994,5.5743919999999996,5.7357199999999997,5.8970479999999998,6.058376,6.2197039999999992,6.3810319999999994,6.5423599999999995,6.7036879999999996,6.8650159999999998,7.0263439999999999,7.1876719999999992,7.3489999999999993],[4.0337300000000003,4.1813660000000006,4.329002,4.4766380000000003,4.6242739999999998,4.7719100000000001,4.9195460000000004,5.0671819999999999,5.2148180000000002,5.3624539999999996,5.5100899999999999,5.6577260000000003,5.8053619999999997,5.952998,6.1006339999999994,6.2482699999999998,6.3959060000000001,6.5435419999999995,6.6911779999999998,6.8388140000000002,6.9864499999999996],[3.9450199999999995,4.0789639999999991,4.2129079999999997,4.3468519999999993,4.4807959999999998,4.6147399999999994,4.748683999999999,4.8826279999999995,5.0165719999999991,5.1505159999999997,5.2844599999999993,5.4184039999999989,5.5523479999999994,5.686291999999999,5.8202359999999995,5.9541799999999991,6.0881239999999988,6.2220679999999993,6.3560119999999989,6.4899559999999994,6.623899999999999],[3.8563099999999997,3.9765619999999995,4.0968139999999993,4.217066,4.3373179999999998,4.4575699999999996,4.5778219999999994,4.6980739999999992,4.8183259999999999,4.9385779999999997,5.0588299999999995,5.1790819999999993,5.2993339999999991,5.4195859999999998,5.5398379999999996,5.6600899999999994,5.7803419999999992,5.900593999999999,6.0208459999999997,6.1410979999999995,6.2613499999999993],[3.7675999999999998,3.8741599999999998,3.9807199999999998,4.0872799999999998,4.1938399999999998,4.3003999999999998,4.4069599999999998,4.5135199999999998,4.6200799999999997,4.7266399999999997,4.8331999999999997,4.9397599999999997,5.0463199999999997,5.1528799999999997,5.2594399999999997,5.3659999999999997,5.4725599999999996,5.5791199999999996,5.6856799999999996,5.7922399999999996,5.8987999999999996],[3.67889,3.7717580000000002,3.8646260000000003,3.9574940000000001,4.0503619999999998,4.14323,4.2360980000000001,4.3289660000000003,4.4218339999999996,4.5147019999999998,4.6075699999999999,4.7004380000000001,4.7933060000000003,4.8861739999999996,4.9790419999999997,5.0719099999999999,5.1647780000000001,5.2576459999999994,5.3505139999999995,5.4433819999999997,5.5362499999999999],[3.5901799999999997,3.6693559999999996,3.7485319999999995,3.8277079999999994,3.9068839999999994,3.9860599999999993,4.0652359999999996,4.1444119999999991,4.2235879999999995,4.3027639999999989,4.3819399999999993,4.4611159999999996,4.5402919999999991,4.6194679999999995,4.6986439999999989,4.7778199999999993,4.8569959999999988,4.9361719999999991,5.0153479999999986,5.0945239999999989,5.1736999999999993],[3.5014699999999999,3.5669539999999995,3.6324379999999996,3.6979219999999997,3.7634059999999998,3.8288899999999995,3.8943739999999996,3.9598579999999997,4.0253419999999993,4.0908259999999999,4.1563099999999995,4.2217939999999992,4.2872779999999997,4.3527619999999994,4.418245999999999,4.4837299999999995,4.5492139999999992,4.6146979999999989,4.6801819999999994,4.7456659999999991,4.8111499999999996],[3.4127599999999991,3.464551999999999,3.5163439999999992,3.5681359999999995,3.6199279999999994,3.6717199999999997,3.7235119999999995,3.7753039999999993,3.8270959999999992,3.8788879999999994,3.9306799999999993,3.9824719999999996,4.0342639999999994,4.0860559999999992,4.137848,4.1896399999999998,4.2414319999999996,4.2932239999999995,4.3450159999999993,4.3968079999999992,4.448599999999999],[3.3240500000000002,3.3621500000000002,3.4002500000000002,3.4383499999999998,3.4764499999999998,3.5145499999999998,3.5526499999999999,3.5907499999999999,3.6288499999999999,3.6669499999999999,3.70505,3.74315,3.78125,3.81935,3.85745,3.8955500000000001,3.9336499999999996,3.9717499999999997,4.0098500000000001,4.0479500000000002,4.0860500000000002],[3.2353399999999994,3.2597479999999996,3.2841559999999994,3.3085639999999996,3.3329719999999994,3.3573799999999996,3.3817879999999994,3.4061959999999991,3.4306039999999993,3.4550119999999991,3.4794199999999993,3.5038279999999991,3.5282359999999993,3.552643999999999,3.5770519999999992,3.601459999999999,3.6258679999999992,3.650275999999999,3.6746839999999992,3.6990919999999989,3.7234999999999991],[3.14663,3.1573459999999995,3.1680619999999999,3.1787779999999994,3.1894939999999998,3.2002099999999998,3.2109259999999997,3.2216419999999997,3.2323579999999996,3.2430739999999996,3.2537899999999995,3.2645059999999995,3.2752219999999994,3.2859379999999994,3.2966539999999993,3.3073699999999993,3.3180859999999992,3.3288019999999996,3.3395179999999991,3.350233999999999,3.360949999999999],[3.0579199999999997,3.0549439999999999,3.051968,3.0489919999999997,3.0460159999999998,3.04304,3.0400639999999997,3.0370879999999998,3.0341119999999999,3.0311359999999996,3.0281599999999997,3.0251839999999994,3.0222079999999996,3.0192319999999997,3.0162559999999994,3.0132799999999995,3.0103039999999996,3.0073279999999998,3.0043519999999995,3.0013759999999996,2.9983999999999993],[2.9692099999999995,2.9525419999999998,2.9358739999999997,2.919206,2.9025379999999998,2.8858699999999997,2.8692019999999996,2.8525339999999995,2.8358659999999993,2.8191979999999996,2.8025299999999995,2.7858619999999994,2.7691939999999997,2.7525259999999996,2.7358579999999995,2.7191899999999993,2.7025219999999996,2.6858539999999995,2.6691859999999998,2.6525179999999997,2.6358499999999996],[2.8804999999999996,2.8501399999999997,2.8197799999999997,2.7894199999999998,2.7590599999999998,2.7286999999999999,2.6983399999999995,2.6679799999999996,2.6376199999999996,2.6072599999999997,2.5768999999999997,2.5465399999999998,2.5161799999999999,2.4858199999999995,2.45546,2.4250999999999996,2.3947400000000001,2.3643799999999997,2.3340199999999998,2.3036599999999998,2.2732999999999999]],"type":"surface","contours":{"z":{"show":true,"usecolormap":true,"highlightcolor":"#ff0000","project":{"z":true}}},"frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+<div class="cell-output-display">
+<p><img src="DDEDDA_files/figure-html/unnamed-chunk-30-3.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="potencia" class="level1">
+<h1>Potencia</h1>
+<section id="preguntas-a-responder" class="level2">
+<h2 class="anchored" data-anchor-id="preguntas-a-responder">Preguntas a responder</h2>
+<p>¿Cuál es la potencia alcanzada con el número de réplicas usadas?, ¿Si se deseara una potencia del 90%, cuántas réplicas se debieron haber usado?</p>
+<p>Con el número de réplicas usadas durante este experimento, y con un nivel de significancia del 0.05, considerando 2 factores con 3 niveles para cada uno, podemos alcanzar una potencia del 0.9999559, es decir, una potencia del 99%, un valor excelente.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+     Balanced two-way analysis of variance power calculation 
+
+              a = 3
+              b = 3
+            n.A = 6
+            n.B = 6
+      sig.level = 0.05
+        power.A = 0.9999559
+        power.B = 0.9999559
+          power = 0.9999559
+
+NOTE: power is the minimum power among two factors</code></pre>
+</div>
+</div>
+<p>Para llegar a una potencia del 90%, un valor que también es muy bueno, era necesario realizar 27 observaciones en el experimento. De esto, podemos concluir que no eran necesarias 81 observaciones, pues con esta cantidad de observaciones se obtiene una buena potencia.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+     Balanced two-way analysis of variance sample size adjustment 
+
+              a = 3
+              b = 3
+      sig.level = 0.05
+          power = 0.9
+              n = 3
+
+NOTE: n is number in each group, total sample = 27</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="conclusiones" class="level1">
+<h1>Conclusiones</h1>
+<p>• El análisis experimental permitió identificar que el uso de archivos en formato xlsx y dispositivos de almacenamiento tipo disco duro minimiza significativamente los tiempos de transferencia. Esto sugiere que, para las operaciones de DataXD, priorizar estos elementos en los procesos de manejo de bases de datos resulta en una mejora tangible en la eficiencia operativa, reduciendo tiempos muertos y costos asociados.</p>
+<p>• Los resultados muestran que la memoria RAM no tiene un impacto significativo en los tiempos de transferencia de datos en este contexto. Esto indica que las inversiones en aumentar la capacidad de RAM no aportarán mejoras considerables en este proceso específico, permitiendo a DataXD redirigir recursos a áreas más estratégicas.</p>
+</section>
+<section id="referencias" class="level1">
+<h1>Referencias</h1>
+<p><span class="citation" data-cites="ggplot2 lmtest gplots graphics plotly readxl agricolae pwr pwr2 tseries nortest carData car">(<a href="#ref-ggplot2" role="doc-biblioref">Wickham 2016</a>; <a href="#ref-lmtest" role="doc-biblioref">Zeileis y Hothorn 2002</a>; <a href="#ref-gplots" role="doc-biblioref">Warnes et&nbsp;al. 2024</a>; <a href="#ref-graphics" role="doc-biblioref">2024</a>; <a href="#ref-plotly" role="doc-biblioref">Sievert 2020</a>; <a href="#ref-readxl" role="doc-biblioref">Wickham y Bryan 2023</a>; <a href="#ref-agricolae" role="doc-biblioref">Mendiburu 2023</a>; <a href="#ref-pwr" role="doc-biblioref">Champely 2020</a>; <a href="#ref-pwr2" role="doc-biblioref">Lu, Liu, y Koestler 2017</a>; <a href="#ref-tseries" role="doc-biblioref">Trapletti y Hornik 2024</a>; <a href="#ref-nortest" role="doc-biblioref">Gross y Ligges 2015</a>; <a href="#ref-carData" role="doc-biblioref">Fox, Weisberg, y Price 2022</a>; <a href="#ref-car" role="doc-biblioref">Fox y Weisberg 2019</a>)</span></p>
+
+
+
+</section>
+
+</div><div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">Referencias</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-pwr" class="csl-entry" role="listitem">
+Champely, Stephane. 2020. <span>«pwr: Basic Functions for Power Analysis»</span>. <a href="https://CRAN.R-project.org/package=pwr">https://CRAN.R-project.org/package=pwr</a>.
+</div>
+<div id="ref-car" class="csl-entry" role="listitem">
+Fox, John, y Sanford Weisberg. 2019. <span>«An <span></span>R<span></span> Companion to Applied Regression»</span>. <a href="https://socialsciences.mcmaster.ca/jfox/Books/Companion/">https://socialsciences.mcmaster.ca/jfox/Books/Companion/</a>.
+</div>
+<div id="ref-carData" class="csl-entry" role="listitem">
+Fox, John, Sanford Weisberg, y Brad Price. 2022. <span>«carData: Companion to Applied Regression Data Sets»</span>. <a href="https://CRAN.R-project.org/package=carData">https://CRAN.R-project.org/package=carData</a>.
+</div>
+<div id="ref-nortest" class="csl-entry" role="listitem">
+Gross, Juergen, y Uwe Ligges. 2015. <span>«nortest: Tests for Normality»</span>. <a href="https://CRAN.R-project.org/package=nortest">https://CRAN.R-project.org/package=nortest</a>.
+</div>
+<div id="ref-pwr2" class="csl-entry" role="listitem">
+Lu, Pengcheng, Junhao Liu, y Devin Koestler. 2017. <span>«pwr2: Power and Sample Size Analysis for One-way and Two-way ANOVA Models»</span>. <a href="https://CRAN.R-project.org/package=pwr2">https://CRAN.R-project.org/package=pwr2</a>.
+</div>
+<div id="ref-agricolae" class="csl-entry" role="listitem">
+Mendiburu, Felipe de. 2023. <span>«agricolae: Statistical Procedures for Agricultural Research»</span>. <a href="https://CRAN.R-project.org/package=agricolae">https://CRAN.R-project.org/package=agricolae</a>.
+</div>
+<div id="ref-graphics" class="csl-entry" role="listitem">
+R Core Team. 2024. <span>«R: A Language and Environment for Statistical Computing»</span>. <a href="https://www.R-project.org/">https://www.R-project.org/</a>.
+</div>
+<div id="ref-plotly" class="csl-entry" role="listitem">
+Sievert, Carson. 2020. <span>«Interactive Web-Based Data Visualization with R, plotly, and shiny»</span>. <a href="https://plotly-r.com">https://plotly-r.com</a>.
+</div>
+<div id="ref-tseries" class="csl-entry" role="listitem">
+Trapletti, Adrian, y Kurt Hornik. 2024. <span>«tseries: Time Series Analysis and Computational Finance»</span>. <a href="https://CRAN.R-project.org/package=tseries">https://CRAN.R-project.org/package=tseries</a>.
+</div>
+<div id="ref-gplots" class="csl-entry" role="listitem">
+Warnes, Gregory R., Ben Bolker, Lodewijk Bonebakker, Robert Gentleman, Wolfgang Huber, Andy Liaw, Thomas Lumley, et&nbsp;al. 2024. <span>«gplots: Various R Programming Tools for Plotting Data»</span>. <a href="https://CRAN.R-project.org/package=gplots">https://CRAN.R-project.org/package=gplots</a>.
+</div>
+<div id="ref-ggplot2" class="csl-entry" role="listitem">
+Wickham, Hadley. 2016. <span>«ggplot2: Elegant Graphics for Data Analysis»</span>. <a href="https://ggplot2.tidyverse.org">https://ggplot2.tidyverse.org</a>.
+</div>
+<div id="ref-readxl" class="csl-entry" role="listitem">
+Wickham, Hadley, y Jennifer Bryan. 2023. <span>«readxl: Read Excel Files»</span>. <a href="https://CRAN.R-project.org/package=readxl">https://CRAN.R-project.org/package=readxl</a>.
+</div>
+<div id="ref-lmtest" class="csl-entry" role="listitem">
+Zeileis, Achim, y Torsten Hothorn. 2002. <span>«Diagnostic Checking in Regression Relationships»</span> 2. <a href="https://CRAN.R-project.org/doc/Rnews/">https://CRAN.R-project.org/doc/Rnews/</a>.
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copiado");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copiado");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
